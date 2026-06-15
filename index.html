@@ -262,6 +262,23 @@
 
 <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt=""></div>
 
+<!-- API Key Modal -->
+<div class="modal-overlay hidden" id="apiKeyModal">
+  <div class="modal">
+    <h3>🔑 Anthropic API Key</h3>
+    <p>Required for screenshot auto-fill. Your key is saved only in your browser — it never leaves your device or gets shared with anyone.</p>
+    <p style="margin-bottom:12px">Get a free key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a> → API Keys → Create Key</p>
+    <label style="display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Paste your API key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-…" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:monospace;color:var(--text)">
+    <div id="apiKeyStatus" style="font-size:12px;margin-top:8px;min-height:18px"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeApiKeyModal()">Cancel</button>
+      <button class="btn-secondary" onclick="clearApiKey()" style="color:var(--red);border-color:var(--red-border)">Clear Key</button>
+      <button class="btn-primary" onclick="saveApiKey()">Save Key</button>
+    </div>
+  </div>
+</div>
+
 <!-- Add Week Modal -->
 <div class="modal-overlay hidden" id="addWeekModal">
   <div class="modal">
@@ -286,6 +303,7 @@
     <button class="nav-tab" onclick="showView('overview',this)">🗺 Overview</button>
   </nav>
   <div class="header-date" id="dateBadge"></div>
+  <button id="apiKeyBtn" onclick="openApiKeyModal()" style="display:flex;align-items:center;gap:5px;padding:4px 10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s" title="Set Anthropic API key for screenshot analysis">🔑 API Key</button>
   <div id="syncStatus" style="font-size:11px;font-weight:700;color:var(--muted2);white-space:nowrap;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px">⚙️ Setup needed</div>
 </header>
 
@@ -555,6 +573,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('dateBadge').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   renderWeekButtons(); renderIdeas(); renderPlatformGuide(); renderReports(); renderOverview();
   loadFromSheets();
+  updateApiKeyBtn();
 });
 
 // ─── NAV ──────────────────────────────────────────────────
@@ -1015,6 +1034,62 @@ function buildTierHTML(tier,r,platKey,entryId){
 }
 
 // ─── SCREENSHOT ANALYSIS via Claude API ──────────────────
+// ─── API KEY MANAGEMENT ───────────────────────────────────
+function getApiKey(){ return localStorage.getItem('rot_anthropic_key')||''; }
+
+function updateApiKeyBtn(){
+  const btn = document.getElementById('apiKeyBtn');
+  if(!btn) return;
+  const hasKey = !!getApiKey();
+  btn.style.borderColor = hasKey ? 'var(--green-border)' : 'var(--border)';
+  btn.style.color = hasKey ? 'var(--green)' : 'var(--muted)';
+  btn.style.background = hasKey ? 'var(--green-bg)' : 'var(--surface2)';
+  btn.textContent = hasKey ? '🔑 API Key ✓' : '🔑 API Key';
+}
+
+function openApiKeyModal(){
+  const existing = getApiKey();
+  const input = document.getElementById('apiKeyInput');
+  input.value = existing ? existing.slice(0,8)+'…(saved)' : '';
+  input.placeholder = existing ? 'Key saved — paste new one to replace' : 'sk-ant-…';
+  document.getElementById('apiKeyStatus').textContent = existing ? '✓ Key is saved on this device' : '';
+  document.getElementById('apiKeyStatus').style.color = 'var(--green)';
+  document.getElementById('apiKeyModal').classList.remove('hidden');
+  if(!existing) setTimeout(()=>input.focus(), 80);
+}
+
+function closeApiKeyModal(){
+  document.getElementById('apiKeyModal').classList.add('hidden');
+}
+
+function saveApiKey(){
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if(!val || val.includes('…(saved)')){
+    document.getElementById('apiKeyStatus').textContent = 'Please paste your full API key';
+    document.getElementById('apiKeyStatus').style.color = 'var(--red)';
+    return;
+  }
+  if(!val.startsWith('sk-ant-')){
+    document.getElementById('apiKeyStatus').textContent = 'Key should start with sk-ant-';
+    document.getElementById('apiKeyStatus').style.color = 'var(--red)';
+    return;
+  }
+  localStorage.setItem('rot_anthropic_key', val);
+  document.getElementById('apiKeyStatus').textContent = '✓ Saved!';
+  document.getElementById('apiKeyStatus').style.color = 'var(--green)';
+  updateApiKeyBtn();
+  setTimeout(closeApiKeyModal, 900);
+  showToast('API key saved ✓ Screenshot analysis ready');
+}
+
+function clearApiKey(){
+  localStorage.removeItem('rot_anthropic_key');
+  document.getElementById('apiKeyInput').value = '';
+  document.getElementById('apiKeyStatus').textContent = 'Key cleared';
+  document.getElementById('apiKeyStatus').style.color = 'var(--muted)';
+  updateApiKeyBtn();
+}
+
 async function analyzeScreenshot(platKey,week,ideaIdx,entryId,file){
   const previewEl=document.getElementById('upv-'+entryId);
   const statusEl=document.getElementById('ups-'+entryId);
@@ -1034,10 +1109,24 @@ async function analyzeScreenshot(platKey,week,ideaIdx,entryId,file){
 
   const platName={instagram:'Instagram',youtube:'YouTube',tiktok:'TikTok',facebook:'Facebook'}[platKey];
 
+  const apiKey = getApiKey();
+  if(!apiKey){
+    statusEl.className='upload-status error';
+    statusEl.textContent='⚠ API key needed — click 🔑 API Key in the header to add yours';
+    fieldsEl.textContent='';
+    previewEl.classList.remove('hidden');
+    return;
+  }
+
   try {
     const response=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
       body:JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens:1000,
@@ -1360,49 +1449,90 @@ async function sheetGet(action, params={}){
 async function loadFromSheets(){
   if(!sheetConfigured()){ updateSyncStatus('not-configured'); return; }
   updateSyncStatus('loading');
-  const result = await sheetGet('loadAll');
-  if(!result || result.error){ updateSyncStatus('error'); return; }
 
-  // Merge reports
-  if(result.reports){
+  let result;
+  try {
+    result = await sheetGet('loadAll');
+  } catch(e){
+    updateSyncStatus('error');
+    return;
+  }
+  if(!result || result.error){
+    updateSyncStatus('error');
+    return;
+  }
+
+  // ── Restore reports ──────────────────────────────────────
+  if(result.reports && result.reports.length){
     result.reports.forEach(row=>{
-      const {platform,week,ideaIdx,...fields} = row;
-      const idx = parseInt(ideaIdx)||0;
-      if(DATA.platforms[platform]?.weeks[week]){
-        if(!DATA.platforms[platform].weeks[week].reports) DATA.platforms[platform].weeks[week].reports=[{},{},{}];
-        Object.assign(DATA.platforms[platform].weeks[week].reports[idx], fields);
+      const platform = String(row.platform||'').toLowerCase().trim();
+      const week     = String(row.week||'').trim();
+      const ideaIdx  = parseInt(row.ideaIdx);
+
+      if(!platform || !week || isNaN(ideaIdx)) return;
+      if(!DATA.platforms[platform]) return;
+      if(!DATA.platforms[platform].weeks[week]) return;
+
+      if(!DATA.platforms[platform].weeks[week].reports){
+        DATA.platforms[platform].weeks[week].reports = [{},{},{}];
       }
+      const r = DATA.platforms[platform].weeks[week].reports[ideaIdx] || {};
+      // Only overwrite fields that have actual values in the sheet
+      const fields = ['date','link','views','saves','shares','comments','followers','watchPct','status','takeaway'];
+      fields.forEach(f=>{ if(row[f] !== undefined && row[f] !== '') r[f] = String(row[f]); });
+      DATA.platforms[platform].weeks[week].reports[ideaIdx] = r;
     });
   }
-  // Merge idea states
-  if(result.ideas){
+
+  // ── Restore ideas + AT rows ──────────────────────────────
+  if(result.ideas && result.ideas.length){
     result.ideas.forEach(row=>{
-      const {platform,week,idx,done,refLink,script,additionalThoughts} = row;
-      if(DATA.platforms[platform]?.weeks[week]?.ideas[idx]){
-        const idea = DATA.platforms[platform].weeks[week].ideas[idx];
-        if(done !== undefined) idea.done = done === 'true' || done === true;
-        if(row.status !== undefined) idea.status = row.status||'queued';
-        if(refLink !== undefined) idea.refLink = refLink;
-        if(script !== undefined) idea.script = script;
+      const platform = String(row.platform||'').toLowerCase().trim();
+      const week     = String(row.week||'').trim();
+      const idxRaw   = String(row.idx||'').trim();
+
+      if(!platform || !week || !idxRaw) return;
+      if(!DATA.platforms[platform]) return;
+      if(!DATA.platforms[platform].weeks[week]) return;
+
+      const wd = DATA.platforms[platform].weeks[week];
+
+      // AT row — holds additionalThoughts, hookStyles, openingShots
+      if(idxRaw === 'AT'){
+        if(row.additionalThoughts !== undefined)
+          wd.additionalThoughts = String(row.additionalThoughts);
+        if(row.hookStyles){
+          try{ wd.hookStyles = JSON.parse(row.hookStyles); }catch(e){ wd.hookStyles = []; }
+        }
+        if(row.openingShots){
+          try{ wd.openingShots = JSON.parse(row.openingShots); }catch(e){ wd.openingShots = []; }
+        }
+        return;
       }
-      if(additionalThoughts !== undefined && DATA.platforms[platform]?.weeks[week]){
-        DATA.platforms[platform].weeks[week].additionalThoughts = additionalThoughts;
+
+      // Normal idea row
+      const idx = parseInt(idxRaw);
+      if(isNaN(idx)) return;
+      if(!wd.ideas || !wd.ideas[idx]) return;
+
+      const idea = wd.ideas[idx];
+      if(row.done !== undefined){
+        idea.done = (row.done === true || String(row.done).toUpperCase() === 'TRUE');
       }
-      if(row.hookStyles !== undefined && DATA.platforms[platform]?.weeks[week]){
-        try{ DATA.platforms[platform].weeks[week].hookStyles = JSON.parse(row.hookStyles)||[]; }catch(e){}
-      }
-      if(row.openingShots !== undefined && DATA.platforms[platform]?.weeks[week]){
-        try{ DATA.platforms[platform].weeks[week].openingShots = JSON.parse(row.openingShots)||[]; }catch(e){}
-      }
+      if(row.status !== undefined && row.status !== '')
+        idea.status = String(row.status);
+      if(row.refLink !== undefined)
+        idea.refLink = String(row.refLink);
+      if(row.script !== undefined)
+        idea.script = String(row.script);
     });
-  }
-  // Merge weeks list
-  if(result.weeks){
-    result.weeks.forEach(w=>{ if(!DATA.weeks.includes(w)) DATA.weeks.push(w); });
   }
 
   updateSyncStatus('synced');
-  renderWeekButtons(); renderIdeas(); renderReports(); renderOverview();
+  renderWeekButtons();
+  renderIdeas();
+  renderReports();
+  renderOverview();
 }
 
 // Save a full report entry to Sheets
@@ -1513,7 +1643,7 @@ let toastTimeout;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!document.getElementById('addWeekModal').classList.contains('hidden'))confirmAddWeek();
-  if(e.key==='Escape'){closeWeekModal();closeLightbox();}
+  if(e.key==='Escape'){closeWeekModal();closeLightbox();closeApiKeyModal();}
 });
 </script>
 </body>
