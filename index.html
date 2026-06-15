@@ -87,6 +87,32 @@
   .progress-fill{height:100%;border-radius:999px;background:var(--green);transition:width .3s;}
   .progress-label{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:600;}
 
+  /* Execution status bar */
+  .exec-status-bar{display:flex;align-items:center;gap:0;margin:10px 0 6px 30px;position:relative;}
+  .exec-step{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;position:relative;cursor:pointer;}
+  .exec-step::before{content:'';position:absolute;top:11px;left:-50%;width:100%;height:2px;background:var(--border);z-index:0;transition:background .2s;}
+  .exec-step:first-child::before{display:none;}
+  .exec-dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);background:var(--surface);z-index:1;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s;position:relative;}
+  .exec-label{font-size:10px;font-weight:700;color:var(--muted2);text-align:center;letter-spacing:.2px;white-space:nowrap;}
+  /* Active step */
+  .exec-step.active .exec-dot{border-color:var(--accent);background:var(--accent);color:#fff;}
+  .exec-step.active .exec-label{color:var(--accent);}
+  .exec-step.active::before{background:var(--accent);}
+  /* Completed step (past active) */
+  .exec-step.completed .exec-dot{border-color:var(--green);background:var(--green);color:#fff;}
+  .exec-step.completed .exec-label{color:var(--green);}
+  .exec-step.completed::before{background:var(--green);}
+  /* Per-status card tint */
+  .idea-card.status-filming{border-color:#BFDBFE;}
+  .idea-card.status-review{border-color:#FDE68A;}
+  .idea-card.status-live{background:var(--green-bg);border-color:var(--green-border);}
+
+  /* Editable lists */
+  .elist-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;}
+  .elist-text{flex:1;font-size:12px;color:var(--text);font-style:italic;line-height:1.4;}
+  .elist-remove{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:13px;flex-shrink:0;padding:0 2px;line-height:1;transition:color .15s;}
+  .elist-remove:hover{color:var(--red);}
+
   /* Fill report button */
   .fill-report-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;border:1.5px solid var(--accent);background:#EEF2FF;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:8px;margin-left:30px;}
   .fill-report-btn:hover{background:var(--accent);color:#fff;}
@@ -382,31 +408,31 @@ const DATA = {
       weeks:{
         'May 25':{
           ideas:[
-            {title:'Squeegee Swipe Letter Reveal',body:'REF-style squeegee swipe revealing an initial — "This letter owes you an iced coffee." Full color swipe with text overlay, slow reveal for retention. CTA: tag a friend whose name starts with that letter, or save to claim it.',tags:['Retention','Saveable','Series'],done:false,refLink:'',script:'',images:[]},
-            {title:'Gradient Puff Quote',body:'Multi-color puff quote using pink, yellow & blue ink with puff additive. Mario combines gradient on screen, prints onto a white tee and puffs it up. Rainbow result — experimental but worth testing.',tags:['Experimental','Visual','Educational'],done:false,refLink:'',script:'',images:[]},
-            {title:"Carousel — Father's Day / 4th of July Products",body:"Market carousel promoting Father's Day tees, aprons, or 4th of July items. Consumer-facing content. IG carousels currently outperform video on saves/shares.",tags:['Consumer Marketing','Carousel','Seasonal'],done:false,refLink:'',script:'',images:[]}
+            {title:'Squeegee Swipe Letter Reveal',body:'REF-style squeegee swipe revealing an initial — "This letter owes you an iced coffee." Full color swipe with text overlay, slow reveal for retention. CTA: tag a friend whose name starts with that letter, or save to claim it.',tags:['Retention','Saveable','Series'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Gradient Puff Quote',body:'Multi-color puff quote using pink, yellow & blue ink with puff additive. Mario combines gradient on screen, prints onto a white tee and puffs it up. Rainbow result — experimental but worth testing.',tags:['Experimental','Visual','Educational'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:"Carousel — Father's Day / 4th of July Products",body:"Market carousel promoting Father's Day tees, aprons, or 4th of July items. Consumer-facing content. IG carousels currently outperform video on saves/shares.",tags:['Consumer Marketing','Carousel','Seasonal'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:['Leftover Ink Squeegee Pull Close Up'],
+          hooks:['Leftover Ink Squeegee Pull Close Up'], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 8':{
           ideas:[
-            {title:'Group Vacation Tee — Educational VO',body:"Overhead educational explainer: \"Did you know you could order custom group vacation tees like this one?\" CTA: \"Save this post for your next summer vacation.\"",tags:['Educational','Seasonal','ROT Marketing'],done:false,refLink:'',script:'',images:[]},
-            {title:'Circle Overhead — Pause Challenge',body:'Standard overhead with spinning screens on press — viewers must pause at the exact moment the screen aligns with the shirt design.',tags:['Interactive','Retention','Challenge'],done:false,refLink:'',script:'',images:[]},
-            {title:'Brain Teaser — Find the Mistake',body:'"Can you find the mistake?" Over a satisfying squeegee pull. The mistake is hidden in the text ("whos" & "lets" missing apostrophes). Hook: "Can you find the mistake? / Lets see whos smart."',tags:['Brain Teaser','Retention'],done:false,refLink:'',script:'',images:[]}
+            {title:'Group Vacation Tee — Educational VO',body:"Overhead educational explainer: \"Did you know you could order custom group vacation tees like this one?\" CTA: \"Save this post for your next summer vacation.\"",tags:['Educational','Seasonal','ROT Marketing'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Circle Overhead — Pause Challenge',body:'Standard overhead with spinning screens on press — viewers must pause at the exact moment the screen aligns with the shirt design.',tags:['Interactive','Retention','Challenge'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Brain Teaser — Find the Mistake',body:'"Can you find the mistake?" Over a satisfying squeegee pull. The mistake is hidden in the text ("whos" & "lets" missing apostrophes). Hook: "Can you find the mistake? / Lets see whos smart."',tags:['Brain Teaser','Retention'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:['"Only 1% can pause this at the right time"'],
+          hooks:['"Only 1% can pause this at the right time"'], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 22':{
           ideas:[
-            {title:'Idea 1 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 2 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 3 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+            {title:'Idea 1 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         }
@@ -417,31 +443,31 @@ const DATA = {
       weeks:{
         'May 25':{
           ideas:[
-            {title:'FIFA World Cup POV Loop Storytime',body:'Recreate the high-performing storytime format using the POV Loop Amy created of the "Soccer ball USA" design. Story focuses on making t-shirts for someone going to the FIFA World Cup.',tags:['Storytime','POV Loop','Seasonal'],done:false,refLink:'',script:'',images:[]},
-            {title:"Dad Starter Pack — Father's Day Story",body:"Customer order story: funny 'Dad Starter Pack' tee. VO ends with 'Do you think this is the perfect Father's Day gift…or did we miss something?' — drives comment engagement.",tags:['Seasonal','Comment Bait'],done:false,refLink:'',script:'',images:[]},
-            {title:'Mix Ink with Oil — Comment Reply',body:"So many comments requested 'mixing ink with oil.' Obviously ridiculous — that's the appeal. Proven viral opportunity as a comment-reply follow-up.",tags:['Comment Reply','Viral Potential'],done:false,refLink:'',script:'',images:[]}
+            {title:'FIFA World Cup POV Loop Storytime',body:'Recreate the high-performing storytime format using the POV Loop Amy created of the "Soccer ball USA" design. Story focuses on making t-shirts for someone going to the FIFA World Cup.',tags:['Storytime','POV Loop','Seasonal'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:"Dad Starter Pack — Father's Day Story",body:"Customer order story: funny 'Dad Starter Pack' tee. VO ends with 'Do you think this is the perfect Father's Day gift…or did we miss something?' — drives comment engagement.",tags:['Seasonal','Comment Bait'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Mix Ink with Oil — Comment Reply',body:"So many comments requested 'mixing ink with oil.' Obviously ridiculous — that's the appeal. Proven viral opportunity as a comment-reply follow-up.",tags:['Comment Reply','Viral Potential'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 8':{
           ideas:[
-            {title:'National Corn on the Cob Day — Opinion Debate',body:"New series: \"Random national holidays you didn't know about.\" Script ends: \"Be honest. Would you eat corn over pizza?\" Drives comment debate. Optional: add the \"It's Corn\" song.",tags:['Series','Opinion','Comment Bait'],done:false,refLink:'',script:'',images:[]},
-            {title:'Comment Reply — Do Water Colors / Use Alcohol',body:"Follow-up comment reply. Watercolor: mix ink with paint tube colors. Alcohol: mix ink with a shot for a funny twist. Choose whichever will perform better. Be literal!",tags:['Comment Reply','Experimental'],done:false,refLink:'',script:'',images:[]},
-            {title:'Comment Reply — Screen Print on a Labubu',body:"Revive the 'printing on random items' series. Screen print on a Labubu — trendy enough to stir opinions.",tags:['Comment Reply','Trending'],done:false,refLink:'',script:'',images:[]}
+            {title:'National Corn on the Cob Day — Opinion Debate',body:"New series: \"Random national holidays you didn't know about.\" Script ends: \"Be honest. Would you eat corn over pizza?\" Drives comment debate. Optional: add the \"It's Corn\" song.",tags:['Series','Opinion','Comment Bait'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Comment Reply — Do Water Colors / Use Alcohol',body:"Follow-up comment reply. Watercolor: mix ink with paint tube colors. Alcohol: mix ink with a shot for a funny twist. Choose whichever will perform better. Be literal!",tags:['Comment Reply','Experimental'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Comment Reply — Screen Print on a Labubu',body:"Revive the 'printing on random items' series. Screen print on a Labubu — trendy enough to stir opinions.",tags:['Comment Reply','Trending'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 22':{
           ideas:[
-            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         }
@@ -452,31 +478,31 @@ const DATA = {
       weeks:{
         'May 25':{
           ideas:[
-            {title:'Argentina FIFA Repost — World Cup Hook',body:"Repost the viral FIFA World Cup video. Hook: \"Argentina might win the World Cup again / If we mix the colors of their flag… what color will it make?\" Use Shakira's \"Dai Dai\" or a catchy FIFA remix.",tags:['Repost','Trending','World Cup'],done:false,refLink:'',script:'',images:[]},
-            {title:'ASMR vs Trending Audio A/B Test',body:"Two-video series testing natural ASMR sounds vs a trending song on the same squeegee reveal. Hook on BOTH: \"We're testing two reels to see which performs better.\"",tags:['A/B Test','ASMR','Series'],done:false,refLink:'',script:'',images:[]},
-            {title:'Video Game POV Loop',body:"Screen printing your favorite video game tee. Hook: \"POV: I'm printing a t-shirt for your favorite video game.\" Use Dandy's World screen — proven virality.",tags:['POV Loop','Gaming'],done:false,refLink:'',script:'',images:[]}
+            {title:'Argentina FIFA Repost — World Cup Hook',body:"Repost the viral FIFA World Cup video. Hook: \"Argentina might win the World Cup again / If we mix the colors of their flag… what color will it make?\" Use Shakira's \"Dai Dai\" or a catchy FIFA remix.",tags:['Repost','Trending','World Cup'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'ASMR vs Trending Audio A/B Test',body:"Two-video series testing natural ASMR sounds vs a trending song on the same squeegee reveal. Hook on BOTH: \"We're testing two reels to see which performs better.\"",tags:['A/B Test','ASMR','Series'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Video Game POV Loop',body:"Screen printing your favorite video game tee. Hook: \"POV: I'm printing a t-shirt for your favorite video game.\" Use Dandy's World screen — proven virality.",tags:['POV Loop','Gaming'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 8':{
           ideas:[
-            {title:'Black vs White Tee Circle Swipe — A/B Test',body:'A: circle swipe on black tee. B: circle swipe on white tee. Same VO structure as previous A/B tests.',tags:['A/B Test','Series'],done:false,refLink:'',script:'',images:[]},
-            {title:'Smallest Amount of Ink — Marshmallow Edition',body:"Add-on to Smallest Amount of Ink series: use mini marshmallows to dab the ink. Can post big marshmallow video first as lead-in.",tags:['Series','Experimental'],done:false,refLink:'',script:'',images:[]},
-            {title:'"If This Goes Viral" Comment Control',body:'"If this video goes viral, we\'ll screen print whatever the top comment says. And I mean… whatever." Drives massive engagement.',tags:['Comment Bait','Viral Potential'],done:false,refLink:'',script:'',images:[]}
+            {title:'Black vs White Tee Circle Swipe — A/B Test',body:'A: circle swipe on black tee. B: circle swipe on white tee. Same VO structure as previous A/B tests.',tags:['A/B Test','Series'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Smallest Amount of Ink — Marshmallow Edition',body:"Add-on to Smallest Amount of Ink series: use mini marshmallows to dab the ink. Can post big marshmallow video first as lead-in.",tags:['Series','Experimental'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'"If This Goes Viral" Comment Control',body:'"If this video goes viral, we\'ll screen print whatever the top comment says. And I mean… whatever." Drives massive engagement.',tags:['Comment Bait','Viral Potential'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 22':{
           ideas:[
-            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         }
@@ -487,31 +513,31 @@ const DATA = {
       weeks:{
         'May 25':{
           ideas:[
-            {title:'National Best Friends Day — Color Personalities',body:"June 8 = National Best Friends Day. Colors as personalities: Red=chaos, Yellow=positivity, Blue=loyalty, Green=growth, Purple=toxic friend twist. CTA: \"What color are you and your best friend?\"",tags:['Seasonal','Opinion'],done:false,refLink:'',script:'',images:[]},
-            {title:'Color Personality Text Hook — Viral Retest',body:"Retest the concept behind one of your most viral FB videos with a new hook. End: \"Be honest… what color are you?\"",tags:['Viral Framework','Retest'],done:false,refLink:'',script:'',images:[]},
-            {title:'Find the Hidden Ink Color',body:"\"Can you find the hidden ink color?\" Mario adds one extra color never shown during printing — only appears in the final reveal. \"There's an imposter hiding in plain sight.\"",tags:['Find the Object','Retention'],done:false,refLink:'',script:'',images:[]}
+            {title:'National Best Friends Day — Color Personalities',body:"June 8 = National Best Friends Day. Colors as personalities: Red=chaos, Yellow=positivity, Blue=loyalty, Green=growth, Purple=toxic friend twist. CTA: \"What color are you and your best friend?\"",tags:['Seasonal','Opinion'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Color Personality Text Hook — Viral Retest',body:"Retest the concept behind one of your most viral FB videos with a new hook. End: \"Be honest… what color are you?\"",tags:['Viral Framework','Retest'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Find the Hidden Ink Color',body:"\"Can you find the hidden ink color?\" Mario adds one extra color never shown during printing — only appears in the final reveal. \"There's an imposter hiding in plain sight.\"",tags:['Find the Object','Retention'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:['Cup swirls','Squeegee swipes'],
+          hooks:['Cup swirls','Squeegee swipes'], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 8':{
           ideas:[
-            {title:'Game Content Retest — Find the Unicorn / Ink Money Game',body:'Test whether any game content works or only the Find the Object format. Options: "Find the Unicorn" (2025 ROT album) or "Money Ink Game" (2026 album).',tags:['Game Content','Retest'],done:false,refLink:'',script:'',images:[]},
-            {title:'Peanut Butter Ink — 6.9M View Recreation',body:'Recreate the 6.9M view video using the "peanut butter" colored ink bucket. Optional: scoop real peanut butter alongside and have people guess.',tags:['Viral Recreation','Question Hook'],done:false,refLink:'',script:'',images:[]},
-            {title:"Stanley Cup Winner — Pantone Ink Mix",body:"Pantone ink mix using the Stanley Cup hockey champion's colors. Pantone content performs well on FB.",tags:['Pantone','Sports'],done:false,refLink:'',script:'',images:[]}
+            {title:'Game Content Retest — Find the Unicorn / Ink Money Game',body:'Test whether any game content works or only the Find the Object format. Options: "Find the Unicorn" (2025 ROT album) or "Money Ink Game" (2026 album).',tags:['Game Content','Retest'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Peanut Butter Ink — 6.9M View Recreation',body:'Recreate the 6.9M view video using the "peanut butter" colored ink bucket. Optional: scoop real peanut butter alongside and have people guess.',tags:['Viral Recreation','Question Hook'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:"Stanley Cup Winner — Pantone Ink Mix",body:"Pantone ink mix using the Stanley Cup hockey champion's colors. Pantone content performs well on FB.",tags:['Pantone','Sports'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:['"What happens when you don\'t have enough ink to make a t-shirt?"','"Example 47923 of NEVER letting ink go unused" — 2.6M views'],
+          hooks:['"What happens when you don\'t have enough ink to make a t-shirt?"','"Example 47923 of NEVER letting ink go unused" — 2.6M views'], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
         'June 22':{
           ideas:[
-            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:[],
+          hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         }
@@ -563,11 +589,11 @@ function confirmAddWeek(){
   Object.values(DATA.platforms).forEach(pd=>{
     pd.weeks[val]={
       ideas:[
-        {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-        {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
-        {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+        {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+        {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]},
+        {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,status:'queued',refLink:'',script:'',images:[]}
       ],
-      hooks:[],
+      hooks:[], hookStyles:[], openingShots:[],
       additionalThoughts:'',
       reports:[blankReport(),blankReport(),blankReport()]
     };
@@ -582,7 +608,7 @@ function renderIdeas(){
   const pd=DATA.platforms[currentPlatform];
   const wd=pd.weeks[currentWeek];
   const hex=pd.hex;
-  const doneCount=wd.ideas.filter(i=>i.done).length;
+  const doneCount=wd.ideas.filter(i=>i.status==='live'||i.done).length;
   const pg=PLATFORM_GUIDE[currentPlatform];
 
   const ideasHTML=wd.ideas.map((idea,i)=>{
@@ -595,14 +621,37 @@ function renderIdeas(){
         <img src="${src}" onclick="openLightbox('${key}',${ii})" title="Click to expand">
         <button onclick="removeImage('${currentPlatform}','${currentWeek}',${i},${ii});event.stopPropagation()">✕</button>
       </div>`).join(''):'';
+    const statusSteps = ['queued','filming','review','live'];
+    const statusLabels = {queued:'Queued',filming:'Filming',review:'In Review',live:'Live ✓'};
+    const currentStatus = idea.status || 'queued';
+    const currentStepIdx = statusSteps.indexOf(currentStatus);
+    const statusBarHTML = `
+      <div class="exec-status-bar">
+        ${statusSteps.map((s,si)=>{
+          const isActive = si === currentStepIdx;
+          const isCompleted = si < currentStepIdx;
+          const cls = isActive ? 'active' : isCompleted ? 'completed' : '';
+          const icon = isCompleted ? '✓' : isActive ? '●' : '';
+          return `<div class="exec-step ${cls}" onclick="setIdeaStatus('${currentPlatform}','${currentWeek}',${i},'${s}')" title="Set to ${statusLabels[s]}">
+            <div class="exec-dot">${icon}</div>
+            <div class="exec-label">${statusLabels[s]}</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+
+    const statusCardClass = currentStatus === 'filming' ? 'status-filming'
+      : currentStatus === 'review' ? 'status-review'
+      : currentStatus === 'live' ? 'status-live' : '';
+
     return `
-    <div class="idea-card ${idea.done?'done':''}" id="icard-${key}">
+    <div class="idea-card ${idea.done?'done':''} ${statusCardClass}" id="icard-${key}">
       <div class="idea-header">
         <div class="idea-checkbox ${idea.done?'checked':''}" onclick="toggleIdea('${currentPlatform}','${currentWeek}',${i})">${idea.done?'✓':''}</div>
         <div class="idea-num" style="background:${hex}18;color:${hex}">${i+1}</div>
         <div class="idea-title ${idea.done?'done-text':''}">${idea.title}</div>
         ${idea.done?'<span class="done-badge">✓ Done</span>':''}
       </div>
+      ${statusBarHTML}
       <div class="idea-body">${idea.body}</div>
       <div class="idea-tags">${idea.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
 
@@ -651,7 +700,8 @@ function renderIdeas(){
     </div>`;
   }).join('');
 
-  const hooksHTML=wd.hooks.length?`<div class="sidebar-card" style="margin-top:12px"><div class="card-title">💬 Hooks</div>${wd.hooks.map(h=>`<div class="hook-item">"${h}"</div>`).join('')}</div>`:'';
+  const hookStylesHTML = buildEditableList('hookStyles', '💬 Recommended Hook Styles', currentPlatform, currentWeek, wd.hookStyles||[], hex);
+  const openingShotsHTML = buildEditableList('openingShots', '🎬 Recommended Opening Shot Styles', currentPlatform, currentWeek, wd.openingShots||[], hex);
 
   document.getElementById('ideasContent').innerHTML=`
     <div>
@@ -686,7 +736,8 @@ function renderIdeas(){
         ${pg.filters.map(f=>`<div class="filter-check"><span style="color:${hex};flex-shrink:0">✓</span><span style="font-size:13px;color:var(--muted)">${f}</span></div>`).join('')}
         <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)">Owner: <strong style="color:var(--text)">${pg.owner}</strong></div>
       </div>
-      ${hooksHTML}
+      ${hookStylesHTML}
+      ${openingShotsHTML}
     </div>`;
 }
 
@@ -781,11 +832,77 @@ function closeLightbox(){document.getElementById('lightbox').classList.add('hidd
 
 function toggleIdea(plat,week,idx){
   DATA.platforms[plat].weeks[week].ideas[idx].done=!DATA.platforms[plat].weeks[week].ideas[idx].done;
+  // Sync status with done checkbox
+  if(DATA.platforms[plat].weeks[week].ideas[idx].done){
+    DATA.platforms[plat].weeks[week].ideas[idx].status='live';
+  } else if(DATA.platforms[plat].weeks[week].ideas[idx].status==='live'){
+    DATA.platforms[plat].weeks[week].ideas[idx].status='queued';
+  }
   renderIdeas();
   const idea=DATA.platforms[plat].weeks[week].ideas[idx];
   showToast(idea.done?`"${idea.title}" marked as done ✓`:`"${idea.title}" unmarked`);
   updateSyncSaving();
   saveIdeaToSheet(plat,week,idx).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+}
+
+function setIdeaStatus(plat,week,idx,status){
+  DATA.platforms[plat].weeks[week].ideas[idx].status = status;
+  // Sync done checkbox — live = done, anything else = not done
+  DATA.platforms[plat].weeks[week].ideas[idx].done = (status === 'live');
+  renderIdeas();
+  const labels = {queued:'Queued',filming:'Filming 🎬',review:'In Review 👀',live:'Live ✓'};
+  showToast(`Idea ${idx+1} → ${labels[status]}`);
+  updateSyncSaving();
+  saveIdeaToSheet(plat,week,idx).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+}
+
+// ─── EDITABLE LIST SECTIONS ───────────────────────────────
+function buildEditableList(field, title, plat, week, items, hex){
+  const listId = `elist-${field}-${plat}-${week.replace(/\s/g,'_')}`;
+  const itemsHTML = items.map((item,i)=>`
+    <div class="elist-item" id="${listId}-item-${i}">
+      <span class="elist-text">"${item}"</span>
+      <button class="elist-remove" onclick="removeListItem('${field}','${plat}','${week}',${i})" title="Remove">✕</button>
+    </div>`).join('');
+  return `
+  <div class="sidebar-card" style="margin-top:12px">
+    <div class="card-title" style="margin-bottom:10px">${title}</div>
+    <div id="${listId}">
+      ${items.length ? itemsHTML : `<div style="font-size:12px;color:var(--muted2);font-style:italic;margin-bottom:8px">None added yet</div>`}
+    </div>
+    <div style="display:flex;gap:6px;margin-top:10px">
+      <input type="text" id="${listId}-input"
+        style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:6px 10px;font-size:12px;color:var(--text);outline:none;font-family:inherit"
+        placeholder="Add new…"
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'"
+        onkeydown="if(event.key==='Enter'){addListItem('${field}','${plat}','${week}','${listId}');event.preventDefault();}">
+      <button onclick="addListItem('${field}','${plat}','${week}','${listId}')"
+        style="padding:6px 12px;background:${hex};color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
+        + Add
+      </button>
+    </div>
+  </div>`;
+}
+
+function addListItem(field, plat, week, listId){
+  const input = document.getElementById(listId+'-input');
+  const val = input ? input.value.trim() : '';
+  if(!val) return;
+  if(!DATA.platforms[plat].weeks[week][field]) DATA.platforms[plat].weeks[week][field]=[];
+  DATA.platforms[plat].weeks[week][field].push(val);
+  input.value='';
+  // Save to sheet
+  updateSyncSaving();
+  saveAdditionalThoughtsToSheet(plat,week).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+  renderIdeas();
+}
+
+function removeListItem(field, plat, week, idx){
+  DATA.platforms[plat].weeks[week][field].splice(idx,1);
+  updateSyncSaving();
+  saveAdditionalThoughtsToSheet(plat,week).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+  renderIdeas();
 }
 
 let atDebounce = {};
@@ -1264,11 +1381,18 @@ async function loadFromSheets(){
       if(DATA.platforms[platform]?.weeks[week]?.ideas[idx]){
         const idea = DATA.platforms[platform].weeks[week].ideas[idx];
         if(done !== undefined) idea.done = done === 'true' || done === true;
+        if(row.status !== undefined) idea.status = row.status||'queued';
         if(refLink !== undefined) idea.refLink = refLink;
         if(script !== undefined) idea.script = script;
       }
       if(additionalThoughts !== undefined && DATA.platforms[platform]?.weeks[week]){
         DATA.platforms[platform].weeks[week].additionalThoughts = additionalThoughts;
+      }
+      if(row.hookStyles !== undefined && DATA.platforms[platform]?.weeks[week]){
+        try{ DATA.platforms[platform].weeks[week].hookStyles = JSON.parse(row.hookStyles)||[]; }catch(e){}
+      }
+      if(row.openingShots !== undefined && DATA.platforms[platform]?.weeks[week]){
+        try{ DATA.platforms[platform].weeks[week].openingShots = JSON.parse(row.openingShots)||[]; }catch(e){}
       }
     });
   }
@@ -1294,6 +1418,7 @@ async function saveIdeaToSheet(platKey, week, idx){
   return sheetPost('saveIdea', {
     platform:platKey, week, idx,
     done: idea.done,
+    status: idea.status||'queued',
     refLink: idea.refLink||'',
     script: idea.script||''
   });
@@ -1301,9 +1426,12 @@ async function saveIdeaToSheet(platKey, week, idx){
 
 // Save additional thoughts to Sheets
 async function saveAdditionalThoughtsToSheet(platKey, week){
+  const wd = DATA.platforms[platKey].weeks[week];
   return sheetPost('saveAdditionalThoughts', {
     platform:platKey, week,
-    additionalThoughts: DATA.platforms[platKey].weeks[week].additionalThoughts||''
+    additionalThoughts: wd.additionalThoughts||'',
+    hookStyles: JSON.stringify(wd.hookStyles||[]),
+    openingShots: JSON.stringify(wd.openingShots||[])
   });
 }
 
