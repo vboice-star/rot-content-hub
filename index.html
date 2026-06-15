@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROT Content Strategy Hub</title>
+<style>
+  :root {
+    --bg:#F2F4F8;--surface:#FFFFFF;--surface2:#F7F8FB;--border:#E3E8F0;--border2:#C8D0E0;
+    --text:#1A1F2E;--muted:#6B7694;--muted2:#9AA3BC;
+    --ig:#E1306C;--yt:#CC0000;--tt:#00897B;--fb:#1565C0;--accent:#4F46E5;
+    --green:#16A34A;--green-bg:#F0FDF4;--green-border:#BBF7D0;
+    --red:#DC2626;--red-bg:#FEF2F2;--red-border:#FECACA;
+    --yellow:#D97706;--yellow-bg:#FFFBEB;--yellow-border:#FDE68A;
+    --blue:#1D4ED8;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+    --purple:#7C3AED;--purple-bg:#F5F3FF;--purple-border:#DDD6FE;
+    --shadow:0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:0 4px 20px rgba(0,0,0,0.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;font-size:14px;min-height:100vh;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;gap:16px;height:60px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+  .logo{font-size:17px;font-weight:800;letter-spacing:-.5px;color:var(--accent);white-space:nowrap;display:flex;align-items:center;gap:8px;}
+  .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--ig);}
+  .nav-tabs{display:flex;gap:2px;flex:1;}
+  .nav-tab{padding:7px 15px;border-radius:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;transition:all .15s;white-space:nowrap;}
+  .nav-tab:hover{background:var(--bg);color:var(--text);}
+  .nav-tab.active{background:var(--accent);color:#fff;}
+  .header-date{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;font-weight:500;}
+  main{padding:24px;max-width:1280px;margin:0 auto;}
+
+  /* Platform pills */
+  .platform-selector{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  .plat-btn{display:flex;align-items:center;gap:8px;padding:8px 18px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-weight:700;font-size:13px;transition:all .15s;box-shadow:var(--shadow);}
+  .plat-btn .pdot{width:9px;height:9px;border-radius:50%;}
+  .plat-btn.active[data-plat="instagram"]{border-color:var(--ig);color:var(--ig);background:#FFF0F5;}
+  .plat-btn.active[data-plat="youtube"]{border-color:var(--yt);color:var(--yt);background:#FFF5F5;}
+  .plat-btn.active[data-plat="tiktok"]{border-color:var(--tt);color:var(--tt);background:#F0FDFB;}
+  .plat-btn.active[data-plat="facebook"]{border-color:var(--fb);color:var(--fb);background:#EFF6FF;}
+
+  /* Weeks */
+  .week-row{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;align-items:center;}
+  .week-btn{padding:6px 15px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;box-shadow:var(--shadow);}
+  .week-btn.active{border-color:var(--accent);color:var(--accent);background:#EEF2FF;}
+  .add-week-btn{padding:6px 13px;border-radius:8px;border:1.5px dashed var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;display:flex;align-items:center;gap:5px;}
+  .add-week-btn:hover{border-color:var(--accent);color:var(--accent);background:#EEF2FF;}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:500;display:flex;align-items:center;justify-content:center;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--surface);border-radius:16px;padding:28px;width:420px;box-shadow:var(--shadow-md);}
+  .modal h3{font-size:16px;font-weight:800;margin-bottom:6px;}
+  .modal p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+  .modal input[type=text]{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;color:var(--text);}
+  .modal input[type=text]:focus{border-color:var(--accent);}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;}
+  .btn-primary{padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;}
+  .btn-secondary{padding:8px 16px;background:var(--surface2);color:var(--muted);border:1.5px solid var(--border);border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;}
+
+  /* Layout */
+  .grid-2{display:grid;grid-template-columns:1fr 340px;gap:18px;}
+  @media(max-width:900px){.grid-2{grid-template-columns:1fr;}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow);}
+  .card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:14px;}
+
+  /* Ideas */
+  .idea-card{border:1.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;transition:all .2s;background:var(--surface);}
+  .idea-card.done{background:var(--green-bg);border-color:var(--green-border);}
+  .idea-card:last-child{margin-bottom:0;}
+  .idea-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+  .idea-checkbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);background:var(--surface);cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:12px;}
+  .idea-checkbox.checked{background:var(--green);border-color:var(--green);color:#fff;}
+  .idea-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px;}
+  .idea-title{font-weight:700;font-size:14px;line-height:1.3;flex:1;}
+  .idea-title.done-text{text-decoration:line-through;color:var(--muted);}
+  .idea-body{font-size:13px;color:var(--muted);line-height:1.65;margin-left:30px;}
+  .idea-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;margin-left:30px;}
+  .tag{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--muted);}
+  .done-badge{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .filter-check{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);}
+  .filter-check:last-child{border-bottom:none;}
+  .goal-pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;margin-bottom:12px;}
+  .hook-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:6px;font-style:italic;}
+  .progress-row{display:flex;align-items:center;gap:10px;}
+  .progress-track{flex:1;height:6px;background:var(--border);border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:999px;background:var(--green);transition:width .3s;}
+  .progress-label{font-size:12px;color:var(--muted);white-space:nowrap;font-weight:600;}
+
+  /* Fill report button */
+  .fill-report-btn{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;border:1.5px solid var(--accent);background:#EEF2FF;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:8px;margin-left:30px;}
+  .fill-report-btn:hover{background:var(--accent);color:#fff;}
+  .fill-report-btn.has-data{border-color:var(--green-border);background:var(--green-bg);color:var(--green);}
+  /* Report week group */
+  .report-week-group{margin-bottom:32px;}
+  .report-week-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border);}
+  .report-week-label{font-size:18px;font-weight:900;color:var(--text);}
+  .report-week-meta{font-size:12px;color:var(--muted);font-weight:500;}
+  .report-idea-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+  @media(max-width:1000px){.report-idea-cards{grid-template-columns:1fr 1fr;}}
+  @media(max-width:640px){.report-idea-cards{grid-template-columns:1fr;}}
+  .report-idea-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+  .ric-header{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface2);}
+  .ric-idea-title{font-weight:700;font-size:13px;color:var(--text);margin-bottom:5px;line-height:1.3;}
+  .ric-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .ric-body{padding:14px 16px;}
+
+  /* Idea extras */
+  .idea-extras-toggle{display:flex;gap:6px;margin-top:10px;margin-left:30px;flex-wrap:wrap;}
+  .extra-btn{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+  .extra-btn:hover{border-color:var(--border2);color:var(--text);}
+  .extra-btn.active{border-color:var(--accent);color:var(--accent);background:#EEF2FF;}
+  .extra-btn.has-content{border-color:var(--green-border);color:var(--green);background:var(--green-bg);}
+  .extra-panel{display:none;margin-top:10px;margin-left:30px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);overflow:hidden;}
+  .extra-panel.open{display:block;}
+  .extra-panel-inner{padding:12px 14px;}
+  .extra-panel label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .extra-panel input[type=text]{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:7px;color:var(--text);padding:7px 10px;font-size:13px;outline:none;font-family:inherit;}
+  .extra-panel input[type=text]:focus{border-color:var(--accent);}
+  .extra-panel textarea{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:7px;color:var(--text);padding:8px 10px;font-size:13px;outline:none;font-family:inherit;resize:vertical;min-height:90px;line-height:1.6;}
+  .extra-panel textarea:focus{border-color:var(--accent);}
+  .design-upload-zone{border:2px dashed var(--border2);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);position:relative;margin-bottom:10px;}
+  .design-upload-zone:hover{border-color:var(--accent);background:#EEF2FF;}
+  .design-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .design-upload-zone p{font-size:12px;font-weight:600;color:var(--muted);margin:0;}
+  .design-img-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+  .design-img-thumb{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;}
+  .design-img-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer;}
+  .design-img-thumb button{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:900;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .lightbox img{max-width:90vw;max-height:88vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+  .lightbox.hidden{display:none;}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+  @media(max-width:760px){.role-grid{grid-template-columns:1fr;}}
+  .role-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;border-left:4px solid;box-shadow:var(--shadow);}
+  .role-item[data-plat="instagram"]{border-left-color:var(--ig);}
+  .role-item[data-plat="youtube"]{border-left-color:var(--yt);}
+  .role-item[data-plat="tiktok"]{border-left-color:var(--tt);}
+  .role-item[data-plat="facebook"]{border-left-color:var(--fb);}
+  .plat-guide-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .guide-pills{display:flex;gap:7px;flex-wrap:wrap;}
+  .guide-pill{border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;}
+  .guide-pill.do{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);}
+  .guide-pill.avoid{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);}
+  .insight-chip{background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;}
+  .updated-badge{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px;}
+
+  /* Views */
+  .view{display:none;} .view.active{display:block;}
+
+  /* Reports */
+  .report-entry{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:var(--shadow);}
+  .report-entry.hidden{display:none;}
+  .re-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+  .save-entry-btn{padding:6px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;margin-left:auto;}
+  .save-entry-btn.saved{background:var(--green);}
+  .fields-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;margin-bottom:14px;}
+  .fg label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+  .fg input,.fg select,.fg textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-size:13px;outline:none;font-family:inherit;transition:border-color .15s;}
+  .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);background:#fff;}
+  .fg textarea{resize:vertical;min-height:56px;}
+  .fw2{grid-column:span 2;} .fwall{grid-column:1/-1;}
+
+  /* Screenshot upload zone */
+  .upload-zone{border:2px dashed var(--border2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;background:var(--surface2);position:relative;}
+  .upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:#EEF2FF;}
+  .upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .upload-zone-icon{font-size:26px;margin-bottom:6px;}
+  .upload-zone-text{font-size:13px;font-weight:600;color:var(--muted);}
+  .upload-zone-sub{font-size:11px;color:var(--muted2);margin-top:3px;}
+  .upload-preview{display:flex;align-items:flex-start;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px;}
+  .upload-preview.hidden{display:none;}
+  .upload-preview img{width:100px;height:70px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1px solid var(--border);}
+  .upload-preview-info{flex:1;}
+  .upload-status{font-size:12px;font-weight:600;margin-bottom:4px;}
+  .upload-status.analyzing{color:var(--yellow);}
+  .upload-status.done{color:var(--green);}
+  .upload-status.error{color:var(--red);}
+  .upload-fields-filled{font-size:11px;color:var(--muted);line-height:1.6;}
+  .clear-upload{background:none;border:none;cursor:pointer;color:var(--muted2);font-size:16px;margin-left:auto;flex-shrink:0;}
+
+  /* Tier block */
+  .tier-block{border-radius:12px;padding:16px;margin-bottom:16px;border:1.5px solid;}
+  .tier-underperform{background:var(--red-bg);border-color:var(--red-border);}
+  .tier-average{background:var(--yellow-bg);border-color:var(--yellow-border);}
+  .tier-goal{background:var(--blue-bg);border-color:var(--blue-border);}
+  .tier-top{background:var(--green-bg);border-color:var(--green-border);}
+  .tier-viral{background:var(--purple-bg);border-color:var(--purple-border);}
+  .tier-none{background:var(--surface2);border-color:var(--border);}
+  .tier-badge{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:6px 14px;font-weight:800;font-size:14px;margin-bottom:8px;}
+  .tb-underperform{background:var(--red-bg);color:var(--red);}
+  .tb-average{background:var(--yellow-bg);color:var(--yellow);}
+  .tb-goal{background:var(--blue-bg);color:var(--blue);}
+  .tb-top{background:var(--green-bg);color:var(--green);}
+  .tb-viral{background:var(--purple-bg);color:var(--purple);}
+  .tb-none{background:var(--surface2);color:var(--muted);}
+  .tier-bar-wrap{height:10px;background:var(--border);border-radius:999px;overflow:hidden;margin:8px 0;}
+  .tier-bar{height:100%;border-radius:999px;transition:width .5s ease;}
+  .tier-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+  .tier-metric{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;}
+  .tier-metric-val{font-size:16px;font-weight:800;}
+  .tier-metric-lbl{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.3px;}
+  .bench-pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+  .bench-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;border:1px solid;}
+  .tier-verdict{margin-top:10px;padding:9px 13px;border-radius:8px;font-size:12px;font-weight:600;}
+
+  /* Filter bar */
+  .filter-bar{display:flex;gap:8px;margin-bottom:18px;align-items:center;flex-wrap:wrap;}
+  .filter-label{font-size:12px;font-weight:700;color:var(--muted);}
+  .filter-chip{padding:5px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+  .filter-chip.active{border-color:var(--accent);color:var(--accent);background:#EEF2FF;}
+
+  /* Overview */
+  .stat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:12px;margin-bottom:20px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
+  .stat-num{font-size:28px;font-weight:900;color:var(--accent);}
+  .stat-label{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+  .analytics-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .analytics-plat{border-radius:10px;padding:14px;border:1px solid var(--border);background:var(--surface2);}
+  .a-bar{height:5px;border-radius:999px;background:var(--border);margin:5px 0 3px;overflow:hidden;}
+  .a-bar-fill{height:100%;border-radius:999px;}
+
+  /* Status badge */
+  .status-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+  .s-yes{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .s-no{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+  .s-maybe{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow-border);}
+  .s-pending{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:24px;background:#1A1F2E;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;}
+  .toast.show{transform:translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="lightbox hidden" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt=""></div>
+
+<!-- Add Week Modal -->
+<div class="modal-overlay hidden" id="addWeekModal">
+  <div class="modal">
+    <h3>Add a New Week</h3>
+    <p>Enter the week label — e.g. "July 6"</p>
+    <input type="text" id="newWeekInput" placeholder="e.g. July 6" maxlength="20">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeWeekModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmAddWeek()">Add Week</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<header>
+  <div class="logo"><span class="logo-dot"></span> ROT Content Hub</div>
+  <nav class="nav-tabs">
+    <button class="nav-tab" onclick="showView('platform',this)">🎯 Platform Guide</button>
+    <button class="nav-tab active" onclick="showView('ideas',this)">💡 Ideas</button>
+    <button class="nav-tab" onclick="showView('reports',this)">📊 Reports</button>
+    <button class="nav-tab" onclick="showView('overview',this)">🗺 Overview</button>
+  </nav>
+  <div class="header-date" id="dateBadge"></div>
+  <div id="syncStatus" style="font-size:11px;font-weight:700;color:var(--muted2);white-space:nowrap;padding:3px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px">⚙️ Setup needed</div>
+</header>
+
+<main>
+  <div class="view active" id="view-ideas">
+    <div class="platform-selector">
+      <button class="plat-btn active" data-plat="instagram" onclick="selectPlatform('instagram')"><span class="pdot" style="background:var(--ig)"></span>Instagram</button>
+      <button class="plat-btn" data-plat="youtube" onclick="selectPlatform('youtube')"><span class="pdot" style="background:var(--yt)"></span>YouTube</button>
+      <button class="plat-btn" data-plat="tiktok" onclick="selectPlatform('tiktok')"><span class="pdot" style="background:var(--tt)"></span>TikTok</button>
+      <button class="plat-btn" data-plat="facebook" onclick="selectPlatform('facebook')"><span class="pdot" style="background:var(--fb)"></span>Facebook</button>
+    </div>
+    <div class="week-row" id="weekRow"></div>
+    <div class="grid-2" id="ideasContent"></div>
+  </div>
+
+  <div class="view" id="view-platform">
+    <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:22px;font-weight:900;margin-bottom:3px">Platform Roles &amp; Direction</div>
+        <div style="font-size:13px;color:var(--muted)">Updated with live web research · June 2026</div>
+      </div>
+      <span class="updated-badge">🔄 Updated June 2026</span>
+    </div>
+    <div id="platformGuideAll"></div>
+  </div>
+
+  <div class="view" id="view-reports">
+    <div style="margin-bottom:18px">
+      <div style="font-size:22px;font-weight:900;margin-bottom:3px">Bi-Weekly Report Takeaways</div>
+      <div style="font-size:13px;color:var(--muted)">Upload a screenshot to auto-fill stats · or enter manually · save each report individually</div>
+    </div>
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <span class="filter-chip active" onclick="filterReports('all',this)">All Platforms</span>
+      <span class="filter-chip" onclick="filterReports('instagram',this)">Instagram</span>
+      <span class="filter-chip" onclick="filterReports('youtube',this)">YouTube</span>
+      <span class="filter-chip" onclick="filterReports('tiktok',this)">TikTok</span>
+      <span class="filter-chip" onclick="filterReports('facebook',this)">Facebook</span>
+    </div>
+    <div id="reportEntries"></div>
+  </div>
+
+  <div class="view" id="view-overview">
+    <div style="font-size:22px;font-weight:900;margin-bottom:18px">Strategy Overview</div>
+    <div class="stat-cards" id="overviewStats"></div>
+    <div class="card" style="margin-bottom:14px" id="overviewAnalytics"></div>
+    <div class="card" id="overviewPlatforms"></div>
+  </div>
+</main>
+
+<script>
+// ─── BENCHMARKS ───────────────────────────────────────────
+const BENCHMARKS={
+  tiktok:   {underperform:8000,  average:15000, goal:50000,  top:120000, viral:120000},
+  instagram:{underperform:10000, average:20000, goal:100000, top:150000, viral:150000},
+  facebook: {underperform:5000,  average:15000, goal:40000,  top:100000, viral:100000},
+  youtube:  {underperform:9000,  average:15000, goal:30000,  top:90000,  viral:100000}
+};
+const BENCH_LABELS={
+  tiktok:   {underperform:'Under 8k',  average:'8k–15k',   goal:'20k–50k',   top:'50k–120k',  viral:'120k+'},
+  instagram:{underperform:'Under 10k', average:'10k–20k',  goal:'20k–100k',  top:'100k–150k', viral:'150k+'},
+  facebook: {underperform:'Under 5k',  average:'5k–15k',   goal:'15k–40k',   top:'40k–100k',  viral:'100k+'},
+  youtube:  {underperform:'Under 9k',  average:'9k–15k',   goal:'15k–30k',   top:'30k–90k',   viral:'100k+'}
+};
+
+// ─── PLATFORM GUIDE DATA (researched June 2026) ──────────
+const PLATFORM_GUIDE = {
+  instagram: {
+    role:'Authority + Visual Satisfaction',
+    goal:'Saveable, clean, visually strong',
+    summary:'DM shares and watch time are now the two top algorithm signals (confirmed by Adam Mosseri). Original content gets a priority boost. Watermarked TikTok reposts now actively tank reach. 55% of Reels views come from non-followers.',
+    updatedNote:'June 2026 — Algorithm now ranks DM shares & watch time as top signals. Original content gets priority boost.',
+    doList:['Prioritize DM-shareable content (top algo signal)','60–90 second Reels for highest engagement','Post 3–4 Reels + 2–3 carousels per week','Use 3–5 hashtags only','Series content with strong save hooks','Carousels outperform video on saves/shares','Stories for BTS + polls to warm audience'],
+    avoidList:['Watermarked TikTok reposts (kills reach)','Overly produced "ad-feeling" content','More than 5 hashtags','Going days without posting'],
+    insights:['55% of Reels views come from non-followers','Reels drive 50% of all time spent on IG','Reach rate 30.81% — 2x higher than carousels','Best post times: 7–9 AM & 11 AM–1 PM'],
+    filters:['Can this teach something quickly?','Is it visually satisfying?','Would someone save or DM this?'],
+    owner:'Mark'
+  },
+  youtube: {
+    role:'Engagement + Community',
+    goal:'Keep people watching + get comments',
+    summary:'The 2026 algorithm explicitly rewards channels posting both Shorts AND long-form. Shorts = discovery, long-form = loyalty and monetization. Every Short should end with a CTA into long-form.',
+    updatedNote:'June 2026 — YouTube rewards channels that publish BOTH Shorts + long-form. Shorts = discovery, long-form = loyalty.',
+    doList:['Pair every long-form with a Short teaser (algo reward)','End every Short with a CTA to long-form video','Double down on comment-reply series','Build episodic/series content that keeps people returning','Storytime + POV formats drive strong retention','Turn top comments into next video concepts','Add chapter markers to improve watch time'],
+    avoidList:['Shorts with no CTA or follow-up','Dead-end videos — always tease what\'s next','Inconsistent upload schedule','Ignoring comment section as a content pipeline'],
+    insights:['Algorithm rewards hybrid Shorts + long-form creators','Shorts = discovery engine, long-form = trust & loyalty','Replay rate & CTR are top Shorts signals','More people watch YouTube on TV than phones in 2026'],
+    filters:['Does this create a question?','Will people stay to see the outcome?','Can we involve the comment section?'],
+    owner:'j.oshea@printfly.com'
+  },
+  tiktok: {
+    role:'Personality + Reach',
+    goal:'Relatable, entertaining, human',
+    summary:'TikTok is now a decision-making platform, not just entertainment. Users come to research and validate brands. Highly produced content underperforms raw authenticity. TikTok videos are now indexed by Google in search results. Stories are being pushed hard by the platform right now.',
+    updatedNote:'June 2026 — TikTok is now a decision-making platform. Users come to research & validate, not just scroll. Authenticity > production.',
+    doList:['Natural, experience-based content beats polished','3–4 content pillars (BTS, edu, trends, personality)','Post 1–2 Stories per day — TikTok is pushing Stories hard','Hook → Conflict → Solution → Emotion structure','Use trending audio with your own brand spin','Educational how-to content ranks well in TikTok search','Behind-the-scenes & office moments build trust'],
+    avoidList:['Highly produced "ad-feeling" videos (underperform)','Direct selling or pushy CTAs','Chasing trends without a content base','Inconsistent posting — consistency 4x engagement'],
+    insights:['TikTok now indexed by Google for how-to & product queries','Discovery + purchase now collapse into a single video','Authenticity is the #1 differentiator in 2026','Algorithm tests content in small clusters before scaling'],
+    filters:['Is this funny, messy, or real?','Would someone send this to a friend?','Does this feel like a person, not a brand?'],
+    owner:'Sam'
+  },
+  facebook: {
+    role:'Virality + Conversation',
+    goal:'Keep people watching + get comments',
+    summary:'Short-form video under 60 seconds now drives 48% of Facebook interactions. AI-driven content loops mean: engage once, Facebook keeps showing your brand. Live video gets 3x watch time vs regular video.',
+    updatedNote:'June 2026 — Facebook now uses AI-driven content loops. Short-form video under 60 seconds gets 48% of interactions. Strong hooks critical.',
+    doList:['Short-form video under 60 seconds (48% of FB interactions)','Strong first 1–2 second hook — critical','Opinion & debate content drives comments','Brain teasers & "find the object" overhead formats','Polls and interactive elements for community','Live video — users watch 3x longer than regular video','Question-based captions to spark comment threads'],
+    avoidList:['VO-heavy content without visual hooks','Weak opening shots','Long-form content without payoff','Content that doesn\'t invite a response'],
+    insights:['48% of users most likely to interact with short-form video','55% of marketers say FB is most effective video channel (after YT/IG)','AI loop: engage once and Facebook keeps showing your brand','Video content from brands increased 3pts YoY on FB'],
+    filters:['Does this create a question?','Will people stay to see the outcome?','Can we spark a debate in the comments?'],
+    owner:'Amy'
+  }
+};
+
+// ─── CONTENT DATA ─────────────────────────────────────────
+const DATA = {
+  weeks:['May 25','June 8','June 22'],
+  platforms:{
+    instagram:{
+      color:'var(--ig)',hex:'#E1306C',
+      weeks:{
+        'May 25':{
+          ideas:[
+            {title:'Squeegee Swipe Letter Reveal',body:'REF-style squeegee swipe revealing an initial — "This letter owes you an iced coffee." Full color swipe with text overlay, slow reveal for retention. CTA: tag a friend whose name starts with that letter, or save to claim it.',tags:['Retention','Saveable','Series'],done:false,refLink:'',script:'',images:[]},
+            {title:'Gradient Puff Quote',body:'Multi-color puff quote using pink, yellow & blue ink with puff additive. Mario combines gradient on screen, prints onto a white tee and puffs it up. Rainbow result — experimental but worth testing.',tags:['Experimental','Visual','Educational'],done:false,refLink:'',script:'',images:[]},
+            {title:"Carousel — Father's Day / 4th of July Products",body:"Market carousel promoting Father's Day tees, aprons, or 4th of July items. Consumer-facing content. IG carousels currently outperform video on saves/shares.",tags:['Consumer Marketing','Carousel','Seasonal'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:['Leftover Ink Squeegee Pull Close Up'],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 8':{
+          ideas:[
+            {title:'Group Vacation Tee — Educational VO',body:"Overhead educational explainer: \"Did you know you could order custom group vacation tees like this one?\" CTA: \"Save this post for your next summer vacation.\"",tags:['Educational','Seasonal','ROT Marketing'],done:false,refLink:'',script:'',images:[]},
+            {title:'Circle Overhead — Pause Challenge',body:'Standard overhead with spinning screens on press — viewers must pause at the exact moment the screen aligns with the shirt design.',tags:['Interactive','Retention','Challenge'],done:false,refLink:'',script:'',images:[]},
+            {title:'Brain Teaser — Find the Mistake',body:'"Can you find the mistake?" Over a satisfying squeegee pull. The mistake is hidden in the text ("whos" & "lets" missing apostrophes). Hook: "Can you find the mistake? / Lets see whos smart."',tags:['Brain Teaser','Retention'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:['"Only 1% can pause this at the right time"'],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 22':{
+          ideas:[
+            {title:'Idea 1 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here for this week.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        }
+      }
+    },
+    youtube:{
+      color:'var(--yt)',hex:'#CC0000',
+      weeks:{
+        'May 25':{
+          ideas:[
+            {title:'FIFA World Cup POV Loop Storytime',body:'Recreate the high-performing storytime format using the POV Loop Amy created of the "Soccer ball USA" design. Story focuses on making t-shirts for someone going to the FIFA World Cup.',tags:['Storytime','POV Loop','Seasonal'],done:false,refLink:'',script:'',images:[]},
+            {title:"Dad Starter Pack — Father's Day Story",body:"Customer order story: funny 'Dad Starter Pack' tee. VO ends with 'Do you think this is the perfect Father's Day gift…or did we miss something?' — drives comment engagement.",tags:['Seasonal','Comment Bait'],done:false,refLink:'',script:'',images:[]},
+            {title:'Mix Ink with Oil — Comment Reply',body:"So many comments requested 'mixing ink with oil.' Obviously ridiculous — that's the appeal. Proven viral opportunity as a comment-reply follow-up.",tags:['Comment Reply','Viral Potential'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 8':{
+          ideas:[
+            {title:'National Corn on the Cob Day — Opinion Debate',body:"New series: \"Random national holidays you didn't know about.\" Script ends: \"Be honest. Would you eat corn over pizza?\" Drives comment debate. Optional: add the \"It's Corn\" song.",tags:['Series','Opinion','Comment Bait'],done:false,refLink:'',script:'',images:[]},
+            {title:'Comment Reply — Do Water Colors / Use Alcohol',body:"Follow-up comment reply. Watercolor: mix ink with paint tube colors. Alcohol: mix ink with a shot for a funny twist. Choose whichever will perform better. Be literal!",tags:['Comment Reply','Experimental'],done:false,refLink:'',script:'',images:[]},
+            {title:'Comment Reply — Screen Print on a Labubu',body:"Revive the 'printing on random items' series. Screen print on a Labubu — trendy enough to stir opinions.",tags:['Comment Reply','Trending'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 22':{
+          ideas:[
+            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        }
+      }
+    },
+    tiktok:{
+      color:'var(--tt)',hex:'#00897B',
+      weeks:{
+        'May 25':{
+          ideas:[
+            {title:'Argentina FIFA Repost — World Cup Hook',body:"Repost the viral FIFA World Cup video. Hook: \"Argentina might win the World Cup again / If we mix the colors of their flag… what color will it make?\" Use Shakira's \"Dai Dai\" or a catchy FIFA remix.",tags:['Repost','Trending','World Cup'],done:false,refLink:'',script:'',images:[]},
+            {title:'ASMR vs Trending Audio A/B Test',body:"Two-video series testing natural ASMR sounds vs a trending song on the same squeegee reveal. Hook on BOTH: \"We're testing two reels to see which performs better.\"",tags:['A/B Test','ASMR','Series'],done:false,refLink:'',script:'',images:[]},
+            {title:'Video Game POV Loop',body:"Screen printing your favorite video game tee. Hook: \"POV: I'm printing a t-shirt for your favorite video game.\" Use Dandy's World screen — proven virality.",tags:['POV Loop','Gaming'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 8':{
+          ideas:[
+            {title:'Black vs White Tee Circle Swipe — A/B Test',body:'A: circle swipe on black tee. B: circle swipe on white tee. Same VO structure as previous A/B tests.',tags:['A/B Test','Series'],done:false,refLink:'',script:'',images:[]},
+            {title:'Smallest Amount of Ink — Marshmallow Edition',body:"Add-on to Smallest Amount of Ink series: use mini marshmallows to dab the ink. Can post big marshmallow video first as lead-in.",tags:['Series','Experimental'],done:false,refLink:'',script:'',images:[]},
+            {title:'"If This Goes Viral" Comment Control',body:'"If this video goes viral, we\'ll screen print whatever the top comment says. And I mean… whatever." Drives massive engagement.',tags:['Comment Bait','Viral Potential'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 22':{
+          ideas:[
+            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        }
+      }
+    },
+    facebook:{
+      color:'var(--fb)',hex:'#1565C0',
+      weeks:{
+        'May 25':{
+          ideas:[
+            {title:'National Best Friends Day — Color Personalities',body:"June 8 = National Best Friends Day. Colors as personalities: Red=chaos, Yellow=positivity, Blue=loyalty, Green=growth, Purple=toxic friend twist. CTA: \"What color are you and your best friend?\"",tags:['Seasonal','Opinion'],done:false,refLink:'',script:'',images:[]},
+            {title:'Color Personality Text Hook — Viral Retest',body:"Retest the concept behind one of your most viral FB videos with a new hook. End: \"Be honest… what color are you?\"",tags:['Viral Framework','Retest'],done:false,refLink:'',script:'',images:[]},
+            {title:'Find the Hidden Ink Color',body:"\"Can you find the hidden ink color?\" Mario adds one extra color never shown during printing — only appears in the final reveal. \"There's an imposter hiding in plain sight.\"",tags:['Find the Object','Retention'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:['Cup swirls','Squeegee swipes'],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 8':{
+          ideas:[
+            {title:'Game Content Retest — Find the Unicorn / Ink Money Game',body:'Test whether any game content works or only the Find the Object format. Options: "Find the Unicorn" (2025 ROT album) or "Money Ink Game" (2026 album).',tags:['Game Content','Retest'],done:false,refLink:'',script:'',images:[]},
+            {title:'Peanut Butter Ink — 6.9M View Recreation',body:'Recreate the 6.9M view video using the "peanut butter" colored ink bucket. Optional: scoop real peanut butter alongside and have people guess.',tags:['Viral Recreation','Question Hook'],done:false,refLink:'',script:'',images:[]},
+            {title:"Stanley Cup Winner — Pantone Ink Mix",body:"Pantone ink mix using the Stanley Cup hockey champion's colors. Pantone content performs well on FB.",tags:['Pantone','Sports'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:['"What happens when you don\'t have enough ink to make a t-shirt?"','"Example 47923 of NEVER letting ink go unused" — 2.6M views'],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        },
+        'June 22':{
+          ideas:[
+            {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+            {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+          ],
+          hooks:[],
+          additionalThoughts:'',
+          reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
+        }
+      }
+    }
+  }
+};
+
+// ─── STATE ────────────────────────────────────────────────
+let currentPlatform='instagram', currentWeek='May 25', currentReportFilter='all';
+
+// ─── INIT ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  const now=new Date();
+  document.getElementById('dateBadge').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  renderWeekButtons(); renderIdeas(); renderPlatformGuide(); renderReports(); renderOverview();
+  loadFromSheets();
+});
+
+// ─── NAV ──────────────────────────────────────────────────
+function showView(name,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='overview') renderOverview();
+}
+
+// ─── PLATFORM / WEEK ─────────────────────────────────────
+function selectPlatform(p){
+  currentPlatform=p;
+  document.querySelectorAll('.plat-btn').forEach(b=>b.classList.toggle('active',b.dataset.plat===p));
+  renderIdeas();
+}
+function renderWeekButtons(){
+  const row=document.getElementById('weekRow');
+  row.innerHTML=DATA.weeks.map(w=>`<button class="week-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w} week</button>`).join('')+
+    `<button class="add-week-btn" onclick="openWeekModal()">＋ Add Week</button>`;
+}
+function selectWeek(w){currentWeek=w;renderWeekButtons();renderIdeas();}
+function openWeekModal(){document.getElementById('addWeekModal').classList.remove('hidden');setTimeout(()=>document.getElementById('newWeekInput').focus(),80);}
+function closeWeekModal(){document.getElementById('addWeekModal').classList.add('hidden');}
+function confirmAddWeek(){
+  const val=document.getElementById('newWeekInput').value.trim();
+  if(!val){return;}
+  if(DATA.weeks.includes(val)){showToast('That week already exists');return;}
+  DATA.weeks.push(val);
+  const blankReport=()=>({date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''});
+  Object.values(DATA.platforms).forEach(pd=>{
+    pd.weeks[val]={
+      ideas:[
+        {title:'Idea 1 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+        {title:'Idea 2 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]},
+        {title:'Idea 3 — TBD',body:'Add your content idea here.',tags:['Draft'],done:false,refLink:'',script:'',images:[]}
+      ],
+      hooks:[],
+      additionalThoughts:'',
+      reports:[blankReport(),blankReport(),blankReport()]
+    };
+  });
+  currentWeek=val; closeWeekModal(); renderWeekButtons(); renderIdeas(); renderReports(); showToast(`Week "${val}" added ✓`);
+}
+
+// ─── IDEAS ────────────────────────────────────────────────
+function ideaKey(plat,week,idx){ return `${plat}_${week.replace(/\s/g,'_')}_${idx}`; }
+
+function renderIdeas(){
+  const pd=DATA.platforms[currentPlatform];
+  const wd=pd.weeks[currentWeek];
+  const hex=pd.hex;
+  const doneCount=wd.ideas.filter(i=>i.done).length;
+  const pg=PLATFORM_GUIDE[currentPlatform];
+
+  const ideasHTML=wd.ideas.map((idea,i)=>{
+    const key=ideaKey(currentPlatform,currentWeek,i);
+    const hasRef=!!idea.refLink;
+    const hasScript=!!idea.script;
+    const hasImages=idea.images&&idea.images.length>0;
+    const thumbsHTML=hasImages?idea.images.map((src,ii)=>`
+      <div class="design-img-thumb">
+        <img src="${src}" onclick="openLightbox('${key}',${ii})" title="Click to expand">
+        <button onclick="removeImage('${currentPlatform}','${currentWeek}',${i},${ii});event.stopPropagation()">✕</button>
+      </div>`).join(''):'';
+    return `
+    <div class="idea-card ${idea.done?'done':''}" id="icard-${key}">
+      <div class="idea-header">
+        <div class="idea-checkbox ${idea.done?'checked':''}" onclick="toggleIdea('${currentPlatform}','${currentWeek}',${i})">${idea.done?'✓':''}</div>
+        <div class="idea-num" style="background:${hex}18;color:${hex}">${i+1}</div>
+        <div class="idea-title ${idea.done?'done-text':''}">${idea.title}</div>
+        ${idea.done?'<span class="done-badge">✓ Done</span>':''}
+      </div>
+      <div class="idea-body">${idea.body}</div>
+      <div class="idea-tags">${idea.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+
+      <!-- Extra toggles -->
+      <div class="idea-extras-toggle">
+        <button class="extra-btn ${hasRef?'has-content':''}" id="btn-ref-${key}" onclick="toggleExtra('${key}','ref')">🔗 Ref Link${hasRef?' ✓':''}</button>
+        <button class="extra-btn ${hasImages?'has-content':''}" id="btn-design-${key}" onclick="toggleExtra('${key}','design')">🎨 Design Idea${hasImages?' ('+idea.images.length+')':''}</button>
+        <button class="extra-btn ${hasScript?'has-content':''}" id="btn-script-${key}" onclick="toggleExtra('${key}','script')">📝 Script${hasScript?' ✓':''}</button>
+      </div>
+      <!-- Fill out report button -->
+      <button class="fill-report-btn ${(()=>{const r=DATA.platforms[currentPlatform].weeks[currentWeek].reports&&DATA.platforms[currentPlatform].weeks[currentWeek].reports[i];return r&&(r.views||r.date)?'has-data':'';})()}"
+        onclick="navigateToReport('${currentPlatform}','${currentWeek}',${i})">
+        ${(()=>{const r=DATA.platforms[currentPlatform].weeks[currentWeek].reports&&DATA.platforms[currentPlatform].weeks[currentWeek].reports[i];return r&&(r.views||r.date)?'📊 View Report':'📊 Fill Out Report';})()}
+      </button>
+
+      <!-- Ref panel -->
+      <div class="extra-panel" id="panel-ref-${key}">
+        <div class="extra-panel-inner">
+          <label>Reference Link</label>
+          <input type="text" placeholder="https://…  or paste a Google Drive / video link"
+            value="${idea.refLink||''}"
+            oninput="updateIdeaField('${currentPlatform}','${currentWeek}',${i},'refLink',this.value,'${key}')">
+        </div>
+      </div>
+
+      <!-- Design idea panel -->
+      <div class="extra-panel" id="panel-design-${key}">
+        <div class="extra-panel-inner">
+          <label>Design Inspiration / Art Reference</label>
+          <div class="design-upload-zone" ondragover="event.preventDefault()" ondrop="handleDesignDrop(event,'${currentPlatform}','${currentWeek}',${i},'${key}')">
+            <input type="file" accept="image/*" multiple onchange="handleDesignFiles(event,'${currentPlatform}','${currentWeek}',${i},'${key}')">
+            <p>📷 Drop images here or click to upload</p>
+          </div>
+          <div class="design-img-preview" id="dpreview-${key}">${thumbsHTML}</div>
+        </div>
+      </div>
+
+      <!-- Script panel -->
+      <div class="extra-panel" id="panel-script-${key}">
+        <div class="extra-panel-inner">
+          <label>Script / VO Notes</label>
+          <textarea placeholder="Add your script, VO direction, or talking points here…"
+            oninput="updateIdeaField('${currentPlatform}','${currentWeek}',${i},'script',this.value,'${key}')">${idea.script||''}</textarea>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const hooksHTML=wd.hooks.length?`<div class="sidebar-card" style="margin-top:12px"><div class="card-title">💬 Hooks</div>${wd.hooks.map(h=>`<div class="hook-item">"${h}"</div>`).join('')}</div>`:'';
+
+  document.getElementById('ideasContent').innerHTML=`
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title">3 Ideas to Execute</div>
+        <div class="progress-row" style="min-width:160px">
+          <div class="progress-track"><div class="progress-fill" style="width:${Math.round((doneCount/3)*100)}%"></div></div>
+          <div class="progress-label">${doneCount}/3 done</div>
+        </div>
+      </div>
+      ${ideasHTML}
+
+      <div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+          <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">💬 Additional Thoughts</span>
+          <span style="font-size:11px;color:var(--muted2)">— optional</span>
+        </div>
+        <textarea
+          style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:13px;outline:none;font-family:inherit;resize:vertical;min-height:76px;line-height:1.65;transition:border-color .15s"
+          placeholder="Anything extra to flag for the team this week — timing notes, platform updates, creative direction, follow-up ideas…"
+          onfocus="this.style.borderColor='var(--accent)';this.style.background='#fff'"
+          onblur="this.style.borderColor='var(--border)';this.style.background='var(--surface2)'"
+          oninput="updateAdditionalThoughts('${currentPlatform}','${currentWeek}',this.value)"
+        >${wd.additionalThoughts||''}</textarea>
+      </div>
+    </div>
+    <div>
+      <div class="sidebar-card">
+        <div class="card-title">🎯 Platform Goal</div>
+        <div class="goal-pill" style="background:${hex}12;color:${hex};border:1px solid ${hex}30">${pg.goal}</div>
+        <div class="card-title" style="margin-top:4px">Concept Filters</div>
+        ${pg.filters.map(f=>`<div class="filter-check"><span style="color:${hex};flex-shrink:0">✓</span><span style="font-size:13px;color:var(--muted)">${f}</span></div>`).join('')}
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)">Owner: <strong style="color:var(--text)">${pg.owner}</strong></div>
+      </div>
+      ${hooksHTML}
+    </div>`;
+}
+
+function toggleExtra(key, panel){
+  const panels=['ref','design','script'];
+  panels.forEach(p=>{
+    const el=document.getElementById(`panel-${p}-${key}`);
+    const btn=document.getElementById(`btn-${p}-${key}`);
+    if(p===panel){
+      const isOpen=el.classList.contains('open');
+      el.classList.toggle('open',!isOpen);
+      if(btn) btn.classList.toggle('active',!isOpen);
+    } else {
+      el.classList.remove('open');
+      if(btn) btn.classList.remove('active');
+    }
+  });
+}
+
+let ideaFieldDebounce = {};
+function updateIdeaField(plat,week,idx,field,val,key){
+  DATA.platforms[plat].weeks[week].ideas[idx][field]=val;
+  const btn=document.getElementById(`btn-${field==='refLink'?'ref':'script'}-${key}`);
+  if(btn){
+    const hasContent=!!val;
+    btn.classList.toggle('has-content',hasContent);
+    btn.classList.remove('active');
+    if(field==='refLink') btn.textContent='🔗 Ref Link'+(hasContent?' ✓':'');
+    if(field==='script') btn.textContent='📝 Script'+(hasContent?' ✓':'');
+  }
+  const dKey = plat+week+idx+field;
+  clearTimeout(ideaFieldDebounce[dKey]);
+  ideaFieldDebounce[dKey] = setTimeout(()=>{
+    updateSyncSaving();
+    saveIdeaToSheet(plat,week,idx).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+  }, 1200);
+}
+
+function handleDesignFiles(event,plat,week,idx,key){
+  const files=Array.from(event.target.files);
+  files.forEach(file=>readAndStoreImage(file,plat,week,idx,key));
+}
+function handleDesignDrop(event,plat,week,idx,key){
+  event.preventDefault();
+  const files=Array.from(event.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  files.forEach(file=>readAndStoreImage(file,plat,week,idx,key));
+}
+function readAndStoreImage(file,plat,week,idx,key){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const src=e.target.result;
+    if(!DATA.platforms[plat].weeks[week].ideas[idx].images) DATA.platforms[plat].weeks[week].ideas[idx].images=[];
+    DATA.platforms[plat].weeks[week].ideas[idx].images.push(src);
+    const imgIdx=DATA.platforms[plat].weeks[week].ideas[idx].images.length-1;
+    // Append thumbnail
+    const preview=document.getElementById('dpreview-'+key);
+    if(preview){
+      const div=document.createElement('div');
+      div.className='design-img-thumb';
+      div.id=`thumb-${key}-${imgIdx}`;
+      div.innerHTML=`<img src="${src}" onclick="openLightbox('${key}',${imgIdx})" title="Click to expand"><button onclick="removeImage('${plat}','${week}',${idx},${imgIdx});event.stopPropagation()">✕</button>`;
+      preview.appendChild(div);
+    }
+    // Update design btn
+    const btn=document.getElementById('btn-design-'+key);
+    const count=DATA.platforms[plat].weeks[week].ideas[idx].images.length;
+    if(btn){btn.className='extra-btn has-content';btn.textContent=`🎨 Design Idea (${count})`;}
+    showToast('Image added ✓');
+  };
+  reader.readAsDataURL(file);
+}
+function removeImage(plat,week,idx,imgIdx){
+  DATA.platforms[plat].weeks[week].ideas[idx].images.splice(imgIdx,1);
+  renderIdeas();
+}
+
+function openLightbox(key,imgIdx){
+  // find image from data
+  let src='';
+  Object.entries(DATA.platforms).forEach(([plat,pd])=>{
+    Object.entries(pd.weeks).forEach(([week,wd])=>{
+      wd.ideas.forEach((idea,i)=>{
+        if(ideaKey(plat,week,i)===key && idea.images && idea.images[imgIdx]) src=idea.images[imgIdx];
+      });
+    });
+  });
+  if(!src) return;
+  document.getElementById('lightboxImg').src=src;
+  document.getElementById('lightbox').classList.remove('hidden');
+}
+function closeLightbox(){document.getElementById('lightbox').classList.add('hidden');}
+
+function toggleIdea(plat,week,idx){
+  DATA.platforms[plat].weeks[week].ideas[idx].done=!DATA.platforms[plat].weeks[week].ideas[idx].done;
+  renderIdeas();
+  const idea=DATA.platforms[plat].weeks[week].ideas[idx];
+  showToast(idea.done?`"${idea.title}" marked as done ✓`:`"${idea.title}" unmarked`);
+  updateSyncSaving();
+  saveIdeaToSheet(plat,week,idx).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+}
+
+let atDebounce = {};
+function updateAdditionalThoughts(plat,week,val){
+  DATA.platforms[plat].weeks[week].additionalThoughts=val;
+  clearTimeout(atDebounce[plat+week]);
+  atDebounce[plat+week] = setTimeout(()=>{
+    updateSyncSaving();
+    saveAdditionalThoughtsToSheet(plat,week).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+  }, 1200);
+}
+
+// ─── PLATFORM GUIDE ───────────────────────────────────────
+function renderPlatformGuide(){
+  document.getElementById('platformGuideAll').innerHTML=Object.entries(PLATFORM_GUIDE).map(([key,pg])=>{
+    const hex=DATA.platforms[key].hex;
+    const name=key.charAt(0).toUpperCase()+key.slice(1);
+    return `<div class="plat-guide-card" style="border-left:4px solid ${hex};margin-bottom:14px">
+
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <span style="width:11px;height:11px;border-radius:50%;background:${hex};display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:17px;font-weight:900;color:${hex}">${name}</span>
+        <span style="font-size:12px;font-weight:700;padding:3px 11px;border-radius:999px;background:${hex}12;color:${hex};border:1px solid ${hex}28">${pg.role}</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--muted)">Owner: <strong style="color:var(--text)">${pg.owner}</strong></span>
+      </div>
+
+      <!-- Short summary -->
+      <div style="font-size:13px;color:var(--text);line-height:1.7;background:${hex}07;border:1px solid ${hex}20;border-radius:9px;padding:12px 14px;margin-bottom:14px">${pg.summary}</div>
+
+      <!-- Three columns: Do / Avoid / Insights -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:12px">
+        <div>
+          <div class="card-title" style="margin-bottom:8px">✅ Do More Of</div>
+          <div class="guide-pills" style="flex-direction:column;gap:5px">${pg.doList.map(d=>`<span class="guide-pill do" style="display:block">${d}</span>`).join('')}</div>
+        </div>
+        <div>
+          <div class="card-title" style="margin-bottom:8px">🚫 Do Less Of</div>
+          <div class="guide-pills" style="flex-direction:column;gap:5px">${pg.avoidList.map(a=>`<span class="guide-pill avoid" style="display:block">${a}</span>`).join('')}</div>
+        </div>
+        <div>
+          <div class="card-title" style="margin-bottom:8px">📡 June 2026 Insights</div>
+          <div style="display:flex;flex-direction:column;gap:5px">${pg.insights.map(ins=>`<span class="insight-chip" style="display:block">${ins}</span>`).join('')}</div>
+        </div>
+      </div>
+
+      <!-- Updated note -->
+      <div style="font-size:11px;color:var(--muted2);padding-top:10px;border-top:1px solid var(--border)">🗓 ${pg.updatedNote}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── TIER LOGIC ───────────────────────────────────────────
+function getTier(platKey,views){
+  const v=parseNum(views);
+  const b=BENCHMARKS[platKey];
+  const bl=BENCH_LABELS[platKey];
+  if(!v && v!==0) return null;
+  let tier,label,icon,cls,tbc,color,pct;
+  if(v<b.underperform){tier='underperform';label='Underperforming';icon='📉';cls='tier-underperform';tbc='tb-underperform';color='var(--red)';pct=Math.max(4,Math.round((v/b.underperform)*18));}
+  else if(v<b.average){tier='average';label='Average';icon='📊';cls='tier-average';tbc='tb-average';color='var(--yellow)';pct=18+Math.round(((v-b.underperform)/(b.average-b.underperform))*18);}
+  else if(v<b.goal){tier='goal';label='Goal Range';icon='🎯';cls='tier-goal';tbc='tb-goal';color='var(--blue)';pct=36+Math.round(((v-b.average)/(b.goal-b.average))*24);}
+  else if(v<b.top){tier='top';label='Top Performing';icon='🚀';cls='tier-top';tbc='tb-top';color='var(--green)';pct=60+Math.round(((v-b.goal)/(b.top-b.goal))*25);}
+  else{tier='viral';label='Viral+';icon='⚡';cls='tier-viral';tbc='tb-viral';color='var(--purple)';pct=Math.min(100,85+15);}
+  const verdicts={
+    underperform:'Consider changing the hook, format, or opening shot. Review what\'s worked before and adjust.',
+    average:'Decent traction but hasn\'t broken out. Try A/B testing the hook or repost with different audio.',
+    goal:'Solid — hitting the goal range. Identify what made this work and build a series around it.',
+    top:'Strong performer! This framework is repeatable — plan a follow-up ASAP.',
+    viral:'Viral territory! Document every detail and push a follow-up immediately while momentum is high.'
+  };
+  return {tier,label,icon,cls,tbc,color,pct,verdict:verdicts[tier],bl};
+}
+function parseNum(val){
+  if(!val) return 0;
+  const s=String(val).replace(/,/g,'').toLowerCase().trim();
+  if(s.endsWith('k')) return parseFloat(s)*1000;
+  if(s.endsWith('m')) return parseFloat(s)*1000000;
+  return parseFloat(s)||0;
+}
+function buildTierHTML(tier,r,platKey,entryId){
+  const bl=BENCH_LABELS[platKey];
+  const benchPills=`<div class="bench-pills">
+    <span class="bench-pill" style="background:var(--red-bg);color:var(--red);border-color:var(--red-border)">📉 ${bl.underperform}</span>
+    <span class="bench-pill" style="background:var(--yellow-bg);color:var(--yellow);border-color:var(--yellow-border)">📊 ${bl.average}</span>
+    <span class="bench-pill" style="background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border)">🎯 ${bl.goal}</span>
+    <span class="bench-pill" style="background:var(--green-bg);color:var(--green);border-color:var(--green-border)">🚀 ${bl.top}</span>
+    <span class="bench-pill" style="background:var(--purple-bg);color:var(--purple);border-color:var(--purple-border)">⚡ ${bl.viral}</span>
+  </div>`;
+  if(!tier) return `<div class="tier-block tier-none">
+    <div class="tier-badge tb-none">📋 Awaiting Data</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Enter views to see performance tier against ROT benchmarks.</div>
+    ${benchPills}
+  </div>`;
+  return `<div class="tier-block ${tier.cls}">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+      <div class="tier-badge ${tier.tbc}">${tier.icon} ${tier.label}</div>
+      <div style="font-size:12px;color:var(--muted)">Views: <strong style="color:${tier.color}">${r.views}</strong></div>
+    </div>
+    <div class="tier-bar-wrap"><div class="tier-bar" style="width:${tier.pct}%;background:${tier.color}"></div></div>
+    <div class="tier-metrics">
+      <div class="tier-metric"><div class="tier-metric-val" style="color:var(--accent)">${r.views||'—'}</div><div class="tier-metric-lbl">Views</div></div>
+      <div class="tier-metric"><div class="tier-metric-val" style="color:var(--green)">${r.saves||'—'}</div><div class="tier-metric-lbl">Saves</div></div>
+      <div class="tier-metric"><div class="tier-metric-val" style="color:var(--fb)">${r.shares||'—'}</div><div class="tier-metric-lbl">Shares</div></div>
+      <div class="tier-metric"><div class="tier-metric-val" style="color:var(--yellow)">${r.comments||'—'}</div><div class="tier-metric-lbl">Comments</div></div>
+    </div>
+    ${benchPills}
+    <div class="tier-verdict" style="background:${tier.color}15;color:${tier.color};border:1px solid ${tier.color}30">${tier.icon} ${tier.verdict}</div>
+  </div>`;
+}
+
+// ─── SCREENSHOT ANALYSIS via Claude API ──────────────────
+async function analyzeScreenshot(platKey,week,ideaIdx,entryId,file){
+  const previewEl=document.getElementById('upv-'+entryId);
+  const statusEl=document.getElementById('ups-'+entryId);
+  const fieldsEl=document.getElementById('upf-'+entryId);
+  previewEl.classList.remove('hidden');
+  statusEl.className='upload-status analyzing';
+  statusEl.textContent='🔍 Analyzing screenshot…';
+  fieldsEl.textContent='';
+
+  // Read file as base64
+  const base64=await new Promise((res,rej)=>{
+    const reader=new FileReader();
+    reader.onload=e=>res(e.target.result.split(',')[1]);
+    reader.onerror=()=>rej(new Error('Read failed'));
+    reader.readAsDataURL(file);
+  });
+
+  const platName={instagram:'Instagram',youtube:'YouTube',tiktok:'TikTok',facebook:'Facebook'}[platKey];
+
+  try {
+    const response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:file.type||'image/png',data:base64}},
+            {type:'text',text:`This is a screenshot from a ${platName} analytics page or video performance page. Extract ALL visible metrics and return ONLY a JSON object with these exact keys (use empty string "" if not visible):
+{
+  "views": "",
+  "saves": "",
+  "shares": "",
+  "comments": "",
+  "followers": "",
+  "watchPct": "",
+  "date": "",
+  "link": "",
+  "takeaway": ""
+}
+
+For views/saves/shares/comments/followers: return the number as shown (e.g. "3700" or "3.7k").
+For watchPct: return as shown (e.g. "42%").
+For date: return in MM/DD/YYYY format if visible.
+For link: return the video title if visible.
+For takeaway: write one sentence summarizing what the data shows.
+Return ONLY the JSON, no other text.`}
+          ]
+        }]
+      })
+    });
+    const data=await response.json();
+    const rawText=data.content.map(c=>c.text||'').join('');
+    const clean=rawText.replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(clean);
+
+    // Fill in the fields
+    if(!DATA.platforms[platKey].weeks[week].reports) DATA.platforms[platKey].weeks[week].reports=[{},{},{}];
+    const r=DATA.platforms[platKey].weeks[week].reports[ideaIdx];
+    let filled=[];
+    const fieldMap={views:'views',saves:'saves',shares:'shares',comments:'comments',followers:'followers',watchPct:'watchPct',date:'date',link:'link',takeaway:'takeaway'};
+    Object.entries(fieldMap).forEach(([k,rk])=>{
+      if(parsed[k]){
+        r[rk]=parsed[k];
+        const input=document.querySelector(`#${entryId} [data-field="${k}"]`);
+        if(input) input.value=parsed[k];
+        filled.push(k);
+      }
+    });
+
+    // Update tier
+    if(parsed.views){
+      const tierEl=document.getElementById('tier-'+entryId);
+      if(tierEl) tierEl.innerHTML=buildTierHTML(getTier(platKey,parsed.views),r,platKey,entryId);
+    }
+
+    statusEl.className='upload-status done';
+    statusEl.textContent='✓ Auto-filled from screenshot';
+    fieldsEl.textContent=`Filled: ${filled.length > 0 ? filled.join(', ') : 'no fields detected'}`;
+    showToast(`Screenshot analyzed — ${filled.length} fields filled ✓`);
+  } catch(e) {
+    statusEl.className='upload-status error';
+    statusEl.textContent='Could not read screenshot — please fill in manually';
+    fieldsEl.textContent=String(e);
+  }
+}
+
+// ─── NAVIGATE TO REPORT ───────────────────────────────────
+function navigateToReport(plat, week, ideaIdx){
+  // Switch to reports tab
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>{
+    t.classList.remove('active');
+    if(t.textContent.includes('Reports')) t.classList.add('active');
+  });
+  document.getElementById('view-reports').classList.add('active');
+
+  // Set filter and re-render
+  currentReportFilter = plat;
+  renderReports();
+
+  // Scroll to the specific card
+  setTimeout(()=>{
+    const el = document.getElementById(`ric-${plat}-${week.replace(/\s/g,'_')}-${ideaIdx}`);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 150);
+}
+
+// ─── REPORTS VIEW ─────────────────────────────────────────
+function renderReports(){
+  const statusMap={yes:'s-yes',no:'s-no',maybe:'s-maybe',pending:'s-pending'};
+  const statusLabel={yes:'✅ Yes, Repeatable',no:'❌ No, Change Framework',maybe:'🟡 Maybe, Needs Tweaks',pending:'— Pending —'};
+
+  // Update filter chips visibility
+  document.querySelectorAll('.filter-chip').forEach(c=>{
+    const txt = c.textContent.toLowerCase().trim();
+    if(txt==='all platforms') c.classList.toggle('active', currentReportFilter==='all');
+    else c.classList.toggle('active', currentReportFilter===txt);
+  });
+
+  const html = DATA.weeks.map(week=>{
+    // Count filled reports for this week across ALL platforms (always show real total)
+    let filledCount = 0;
+    Object.entries(DATA.platforms).forEach(([plat,pd])=>{
+      const reports = pd.weeks[week].reports || [];
+      reports.forEach(r=>{ if(r.views||r.date||r.link) filledCount++; });
+    });
+    const totalReports = Object.keys(DATA.platforms).length * 3;
+
+    // Only include platforms that match the current filter
+    const platformsToShow = Object.entries(DATA.platforms).filter(([platKey])=>
+      currentReportFilter==='all' || currentReportFilter===platKey
+    );
+
+    // If no platforms match, skip this week entirely
+    if(platformsToShow.length === 0) return '';
+
+    const cardsHTML = platformsToShow.map(([platKey,pd])=>{
+      const wd = pd.weeks[week];
+      const reports = wd.reports || [{},{},{}];
+      return reports.map((r,ideaIdx)=>{
+        const idea = wd.ideas[ideaIdx] || {};
+        const entryId = `ric-${platKey}-${week.replace(/\s/g,'_')}-${ideaIdx}`;
+        const tier = r.views ? getTier(platKey,r.views) : null;
+        const hasData = !!(r.views||r.date||r.link);
+        return `
+        <div class="report-idea-card" id="${entryId}" data-plat="${platKey}">
+          <!-- Card header -->
+          <div class="ric-header">
+            <div class="ric-meta" style="margin-bottom:6px">
+              <span style="width:9px;height:9px;border-radius:50%;background:${pd.hex};display:inline-block;flex-shrink:0"></span>
+              <span style="font-weight:700;font-size:12px;color:${pd.hex}">${platKey.charAt(0).toUpperCase()+platKey.slice(1)}</span>
+              <span style="font-size:11px;color:var(--muted)">Idea ${ideaIdx+1}</span>
+              <span class="status-badge ${statusMap[r.status||'pending']}" style="margin-left:auto">${statusLabel[r.status||'pending']}</span>
+            </div>
+            <div class="ric-idea-title">${idea.title||'Untitled idea'}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+              <span style="font-size:11px;color:var(--muted2)">Owner: ${PLATFORM_GUIDE[platKey].owner}</span>
+              <button class="save-entry-btn" style="padding:4px 12px;font-size:11px" onclick="saveEntry('${platKey}','${week}',${ideaIdx},'${entryId}',this)">Save</button>
+            </div>
+          </div>
+
+          <div class="ric-body">
+            <!-- Tier -->
+            <div id="tier-${entryId}" style="margin-bottom:12px">${buildTierHTML(tier,r,platKey,entryId)}</div>
+
+            <!-- Screenshot upload -->
+            <div style="margin-bottom:12px">
+              <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">📸 Upload Screenshot</div>
+              <div class="upload-zone" style="padding:12px" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event,'${platKey}','${week}',${ideaIdx},'${entryId}')">
+                <input type="file" accept="image/*" onchange="handleFileInput(event,'${platKey}','${week}',${ideaIdx},'${entryId}')">
+                <div class="upload-zone-icon" style="font-size:18px;margin-bottom:3px">📷</div>
+                <div class="upload-zone-text" style="font-size:12px">Drop or click to upload</div>
+              </div>
+              <div class="upload-preview hidden" id="upv-${entryId}">
+                <img id="upimg-${entryId}" src="" alt="">
+                <div class="upload-preview-info">
+                  <div class="upload-status" id="ups-${entryId}"></div>
+                  <div class="upload-fields-filled" id="upf-${entryId}"></div>
+                </div>
+                <button class="clear-upload" onclick="clearUpload('${entryId}')">✕</button>
+              </div>
+            </div>
+
+            <!-- Fields -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+              <div class="fg" style="grid-column:1/-1">
+                <label>Video Title</label>
+                <input type="text" value="${r.link||''}" placeholder="Video title" data-field="link" oninput="updateReport('${platKey}','${week}',${ideaIdx},'link',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>Date Posted</label>
+                <input type="text" value="${r.date||''}" placeholder="MM/DD/YYYY" data-field="date" oninput="updateReport('${platKey}','${week}',${ideaIdx},'date',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>Views</label>
+                <input type="text" value="${r.views||''}" placeholder="e.g. 3.7k" data-field="views" oninput="updateReport('${platKey}','${week}',${ideaIdx},'views',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>Saves</label>
+                <input type="text" value="${r.saves||''}" placeholder="—" data-field="saves" oninput="updateReport('${platKey}','${week}',${ideaIdx},'saves',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>Shares</label>
+                <input type="text" value="${r.shares||''}" placeholder="—" data-field="shares" oninput="updateReport('${platKey}','${week}',${ideaIdx},'shares',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>Comments</label>
+                <input type="text" value="${r.comments||''}" placeholder="—" data-field="comments" oninput="updateReport('${platKey}','${week}',${ideaIdx},'comments',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>New Followers</label>
+                <input type="text" value="${r.followers||''}" placeholder="—" data-field="followers" oninput="updateReport('${platKey}','${week}',${ideaIdx},'followers',this.value,'${entryId}')">
+              </div>
+              <div class="fg">
+                <label>Avg Watch %</label>
+                <input type="text" value="${r.watchPct||''}" placeholder="e.g. 42%" data-field="watchPct" oninput="updateReport('${platKey}','${week}',${ideaIdx},'watchPct',this.value,'${entryId}')">
+              </div>
+              <div class="fg" style="grid-column:1/-1">
+                <label>Did it work?</label>
+                <select data-field="status" onchange="updateReport('${platKey}','${week}',${ideaIdx},'status',this.value,'${entryId}')">
+                  <option value="pending" ${(r.status||'pending')==='pending'?'selected':''}>— Pending —</option>
+                  <option value="yes" ${r.status==='yes'?'selected':''}>✅ Yes, Repeatable Framework</option>
+                  <option value="no" ${r.status==='no'?'selected':''}>❌ No, Change Framework</option>
+                  <option value="maybe" ${r.status==='maybe'?'selected':''}>🟡 Maybe, Needs Tweaks</option>
+                </select>
+              </div>
+              <div class="fg" style="grid-column:1/-1">
+                <label>One Sentence Takeaway</label>
+                <textarea data-field="takeaway" rows="2" placeholder="What did we learn?" oninput="updateReport('${platKey}','${week}',${ideaIdx},'takeaway',this.value,'${entryId}')">${r.takeaway||''}</textarea>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }).join('');
+
+    return `
+    <div class="report-week-group">
+      <div class="report-week-header">
+        <div class="report-week-label">📅 ${week} week</div>
+        <div class="report-week-meta">${filledCount} of ${totalReports} reports filled</div>
+      </div>
+      <div class="report-idea-cards">${cardsHTML}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('reportEntries').innerHTML = html;
+}
+
+function handleFileInput(event,platKey,week,ideaIdx,entryId){
+  const file=event.target.files[0];
+  if(!file) return;
+  processUploadFile(file,platKey,week,ideaIdx,entryId);
+}
+function handleDrop(event,platKey,week,ideaIdx,entryId){
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const file=event.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) processUploadFile(file,platKey,week,ideaIdx,entryId);
+}
+function processUploadFile(file,platKey,week,ideaIdx,entryId){
+  const imgEl=document.getElementById('upimg-'+entryId);
+  imgEl.src=URL.createObjectURL(file);
+  analyzeScreenshot(platKey,week,ideaIdx,entryId,file);
+}
+function clearUpload(entryId){
+  document.getElementById('upv-'+entryId).classList.add('hidden');
+  document.getElementById('upimg-'+entryId).src='';
+}
+
+function updateReport(platKey,week,ideaIdx,field,val,entryId){
+  if(!DATA.platforms[platKey].weeks[week].reports) DATA.platforms[platKey].weeks[week].reports=[{},{},{}];
+  DATA.platforms[platKey].weeks[week].reports[ideaIdx][field]=val;
+  const r=DATA.platforms[platKey].weeks[week].reports[ideaIdx];
+  if(field==='views'){
+    const tierEl=document.getElementById('tier-'+entryId);
+    if(tierEl) tierEl.innerHTML=buildTierHTML(val?getTier(platKey,val):null,r,platKey,entryId);
+  }
+  if(field==='status'){
+    const statusMap={yes:'s-yes',no:'s-no',maybe:'s-maybe',pending:'s-pending'};
+    const statusLabel={yes:'✅ Yes, Repeatable',no:'❌ No, Change Framework',maybe:'🟡 Maybe, Needs Tweaks',pending:'— Pending —'};
+    const entry=document.getElementById(entryId);
+    if(entry){const b=entry.querySelector('.status-badge');if(b){b.className='status-badge '+statusMap[val];b.textContent=statusLabel[val];}}
+  }
+  if(['saves','shares','comments'].includes(field)){
+    const tierEl=document.getElementById('tier-'+entryId);
+    if(tierEl){const ms=tierEl.querySelectorAll('.tier-metric-val');if(ms.length===4){ms[0].textContent=r.views||'—';ms[1].textContent=r.saves||'—';ms[2].textContent=r.shares||'—';ms[3].textContent=r.comments||'—';}}
+  }
+}
+
+function saveEntry(platKey,week,ideaIdx,entryId,btn){
+  btn.textContent='Saving…'; btn.classList.add('saved');
+  updateSyncSaving();
+  saveReportToSheet(platKey,week,ideaIdx).then(()=>{
+    btn.textContent='Saved ✓';
+    updateSyncSaved();
+    setTimeout(()=>{ btn.textContent='Save'; btn.classList.remove('saved'); },2200);
+  }).catch(()=>{
+    btn.textContent='Save'; btn.classList.remove('saved');
+    updateSyncStatus('error');
+  });
+  showToast(`${platKey.charAt(0).toUpperCase()+platKey.slice(1)} · ${week} · Idea ${ideaIdx+1} saved`);
+}
+
+function filterReports(filter,el){
+  currentReportFilter=filter;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderReports();
+}
+
+// ─── GOOGLE SHEETS SYNC ───────────────────────────────────
+// Paste your Apps Script Web App URL here after setup:
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxA6mNngjNUsrMN9Qgaz3PvnZI_KtLVtym3ckDzOyWZQmj8kSAAzbxYqZdayKMgQou2/exec';  // ← you will fill this in during setup
+
+function sheetConfigured(){ return !!SHEET_URL; }
+
+async function sheetPost(action, payload){
+  if(!sheetConfigured()) return null;
+  try {
+    const res = await fetch(SHEET_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain'},
+      body: JSON.stringify({action, ...payload})
+    });
+    return await res.json();
+  } catch(e){ console.warn('Sheet sync error:', e); return null; }
+}
+
+async function sheetGet(action, params={}){
+  if(!sheetConfigured()) return null;
+  try {
+    const qs = new URLSearchParams({action, ...params});
+    const res = await fetch(`${SHEET_URL}?${qs}`);
+    return await res.json();
+  } catch(e){ console.warn('Sheet load error:', e); return null; }
+}
+
+// Called on page load — pulls all saved data from Sheets
+async function loadFromSheets(){
+  if(!sheetConfigured()){ updateSyncStatus('not-configured'); return; }
+  updateSyncStatus('loading');
+  const result = await sheetGet('loadAll');
+  if(!result || result.error){ updateSyncStatus('error'); return; }
+
+  // Merge reports
+  if(result.reports){
+    result.reports.forEach(row=>{
+      const {platform,week,ideaIdx,...fields} = row;
+      const idx = parseInt(ideaIdx)||0;
+      if(DATA.platforms[platform]?.weeks[week]){
+        if(!DATA.platforms[platform].weeks[week].reports) DATA.platforms[platform].weeks[week].reports=[{},{},{}];
+        Object.assign(DATA.platforms[platform].weeks[week].reports[idx], fields);
+      }
+    });
+  }
+  // Merge idea states
+  if(result.ideas){
+    result.ideas.forEach(row=>{
+      const {platform,week,idx,done,refLink,script,additionalThoughts} = row;
+      if(DATA.platforms[platform]?.weeks[week]?.ideas[idx]){
+        const idea = DATA.platforms[platform].weeks[week].ideas[idx];
+        if(done !== undefined) idea.done = done === 'true' || done === true;
+        if(refLink !== undefined) idea.refLink = refLink;
+        if(script !== undefined) idea.script = script;
+      }
+      if(additionalThoughts !== undefined && DATA.platforms[platform]?.weeks[week]){
+        DATA.platforms[platform].weeks[week].additionalThoughts = additionalThoughts;
+      }
+    });
+  }
+  // Merge weeks list
+  if(result.weeks){
+    result.weeks.forEach(w=>{ if(!DATA.weeks.includes(w)) DATA.weeks.push(w); });
+  }
+
+  updateSyncStatus('synced');
+  renderWeekButtons(); renderIdeas(); renderReports(); renderOverview();
+}
+
+// Save a full report entry to Sheets
+async function saveReportToSheet(platKey, week, ideaIdx){
+  const reports = DATA.platforms[platKey].weeks[week].reports || [];
+  const r = reports[ideaIdx] || {};
+  return sheetPost('saveReport', {platform:platKey, week, ideaIdx, ...r});
+}
+
+// Save idea state (done, refLink, script) to Sheets
+async function saveIdeaToSheet(platKey, week, idx){
+  const idea = DATA.platforms[platKey].weeks[week].ideas[idx];
+  return sheetPost('saveIdea', {
+    platform:platKey, week, idx,
+    done: idea.done,
+    refLink: idea.refLink||'',
+    script: idea.script||''
+  });
+}
+
+// Save additional thoughts to Sheets
+async function saveAdditionalThoughtsToSheet(platKey, week){
+  return sheetPost('saveAdditionalThoughts', {
+    platform:platKey, week,
+    additionalThoughts: DATA.platforms[platKey].weeks[week].additionalThoughts||''
+  });
+}
+
+function updateSyncStatus(state){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  const map = {
+    'not-configured': ['⚙️ Setup needed', '#9AA3BC'],
+    'loading':        ['⟳ Loading…',      '#D97706'],
+    'synced':         ['✓ Synced',         '#16A34A'],
+    'saving':         ['↑ Saving…',        '#D97706'],
+    'error':          ['⚠ Sync error',     '#DC2626']
+  };
+  const [label, color] = map[state] || map['error'];
+  el.textContent = label;
+  el.style.color = color;
+}
+
+function updateSyncSaving(){ updateSyncStatus('saving'); }
+function updateSyncSaved(){ setTimeout(()=>updateSyncStatus('synced'), 600); }
+
+
+function renderOverview(){
+  let totalIdeas=0,doneIdeas=0,filledReports=0;
+  Object.values(DATA.platforms).forEach(pd=>{
+    DATA.weeks.forEach(w=>{
+      pd.weeks[w].ideas.forEach(i=>{totalIdeas++;if(i.done)doneIdeas++;});
+      const reports = pd.weeks[w].reports || [];
+      reports.forEach(r=>{ if(r.views||r.saves||r.shares) filledReports++; });
+    });
+  });
+  document.getElementById('overviewStats').innerHTML=`
+    <div class="stat-card"><div class="stat-num">${DATA.weeks.length}</div><div class="stat-label">Active Weeks</div></div>
+    <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Platforms</div></div>
+    <div class="stat-card"><div class="stat-num">${totalIdeas}</div><div class="stat-label">Total Ideas</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${doneIdeas}</div><div class="stat-label">Executed</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--yellow)">${totalIdeas-doneIdeas}</div><div class="stat-label">Remaining</div></div>
+    <div class="stat-card"><div class="stat-num">${filledReports}</div><div class="stat-label">Reports Filed</div></div>`;
+  const analyticsHTML=Object.entries(DATA.platforms).map(([key,pd])=>{
+    let bestViews=0,bestTitle='—',bestTier=null;
+    DATA.weeks.forEach(w=>{
+      const reports=pd.weeks[w].reports||[];
+      reports.forEach(r=>{
+        const v=parseNum(r.views);
+        if(v>bestViews){bestViews=v;bestTitle=r.link||'Untitled';bestTier=getTier(key,r.views);}
+      });
+    });
+    const done=DATA.weeks.reduce((a,w)=>a+pd.weeks[w].ideas.filter(i=>i.done).length,0);
+    const total=DATA.weeks.length*3;
+    return `<div class="analytics-plat">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+        <span style="width:9px;height:9px;border-radius:50%;background:${pd.hex};display:inline-block"></span>
+        <strong style="color:${pd.hex}">${key.charAt(0).toUpperCase()+key.slice(1)}</strong>
+        <span style="font-size:11px;color:var(--muted);margin-left:auto">${PLATFORM_GUIDE[key].role}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px"><span>Ideas executed</span><strong style="color:var(--text)">${done}/${total}</strong></div>
+      <div class="a-bar"><div class="a-bar-fill" style="width:${Math.round((done/total)*100)}%;background:${pd.hex}"></div></div>
+      ${bestViews>0?`<div style="font-size:12px;color:var(--muted);margin-top:6px">Best: <strong style="color:${bestTier?bestTier.color:'var(--text)'}">${bestTier?bestTier.label:''}</strong> · ${bestViews.toLocaleString()} views</div><div style="font-size:11px;color:var(--muted2);font-style:italic;margin-top:2px">${bestTitle.length>38?bestTitle.slice(0,38)+'…':bestTitle}</div>`:'<div style="font-size:11px;color:var(--muted2);margin-top:6px">No report data yet</div>'}
+    </div>`;}).join('');
+  document.getElementById('overviewAnalytics').innerHTML=`<div class="card-title" style="margin-bottom:14px">📊 Platform Analytics</div><div class="analytics-row">${analyticsHTML}</div>`;
+  document.getElementById('overviewPlatforms').innerHTML=`
+    <div class="card-title" style="margin-bottom:14px">Platform Focus &amp; Benchmarks</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    ${Object.entries(DATA.platforms).map(([key,pd])=>{const bl=BENCH_LABELS[key];return `<div style="border-radius:10px;padding:13px;border:1px solid var(--border);background:var(--surface2);border-left:4px solid ${pd.hex}">
+      <div style="font-weight:800;color:${pd.hex};margin-bottom:3px">${key.charAt(0).toUpperCase()+key.slice(1)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--red-bg);color:var(--red)">📉 ${bl.underperform}</span>
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--yellow-bg);color:var(--yellow)">📊 ${bl.average}</span>
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--blue-bg);color:var(--blue)">🎯 ${bl.goal}</span>
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--green-bg);color:var(--green)">🚀 ${bl.top}</span>
+        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--purple-bg);color:var(--purple)">⚡ ${bl.viral}</span>
+      </div>
+    </div>`}).join('')}
+    </div>`;
+}
+
+// ─── TOAST / KEYS ─────────────────────────────────────────
+let toastTimeout;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!document.getElementById('addWeekModal').classList.contains('hidden'))confirmAddWeek();
+  if(e.key==='Escape'){closeWeekModal();closeLightbox();}
+});
+</script>
+</body>
+</html>
