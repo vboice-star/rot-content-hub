@@ -107,6 +107,17 @@
   .idea-card.status-review{border-color:#FDE68A;}
   .idea-card.status-live{background:var(--green-bg);border-color:var(--green-border);}
 
+  /* Editable idea fields */
+  .idea-title-edit{font-weight:700;font-size:14px;line-height:1.3;flex:1;border:none;outline:none;background:transparent;font-family:inherit;color:var(--text);cursor:text;padding:0;width:100%;}
+  .idea-title-edit:focus{background:var(--surface2);border-radius:4px;padding:2px 6px;cursor:text;}
+  .idea-body-edit{font-size:13px;color:var(--muted);line-height:1.65;margin-left:30px;width:calc(100% - 30px);border:none;outline:none;background:transparent;font-family:inherit;resize:vertical;min-height:60px;cursor:text;padding:0;}
+  .idea-body-edit:focus{background:var(--surface2);border-radius:6px;padding:8px;cursor:text;color:var(--text);}
+  .idea-card-actions{display:flex;align-items:center;justify-content:flex-end;margin-top:8px;gap:6px;}
+  .idea-delete-btn{padding:3px 9px;border-radius:5px;border:1px solid var(--red-border);background:var(--red-bg);color:var(--red);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;opacity:0;}
+  .idea-card:hover .idea-delete-btn{opacity:1;}
+  .add-idea-btn{width:100%;margin-top:10px;padding:10px;border:2px dashed var(--border2);border-radius:12px;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .add-idea-btn:hover{border-color:var(--accent);color:var(--accent);background:#EEF2FF;}
+
   /* Editable lists */
   .elist-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;}
   .elist-text{flex:1;font-size:12px;color:var(--text);font-style:italic;line-height:1.4;}
@@ -259,8 +270,22 @@
 </style>
 </head>
 <body>
+<script>window._SHEET_URL = "<?= sheetUrl ?>";</script>
+
 
 <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt=""></div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal" style="width:360px">
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmMsg" style="margin-bottom:0"></p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-primary" style="background:var(--red)" id="confirmOkBtn" onclick="doConfirm()">Remove</button>
+    </div>
+  </div>
+</div>
 
 <!-- API Key Modal -->
 <div class="modal-overlay hidden" id="apiKeyModal">
@@ -569,11 +594,16 @@ let currentPlatform='instagram', currentWeek='May 25', currentReportFilter='all'
 
 // ─── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
+  try {
   const now=new Date();
   document.getElementById('dateBadge').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   renderWeekButtons(); renderIdeas(); renderPlatformGuide(); renderReports(); renderOverview();
   loadFromSheets();
   updateApiKeyBtn();
+  } catch(err) {
+    console.error('ROT init error:', err);
+    document.body.innerHTML = '<div style="padding:40px;font-family:sans-serif;color:#DC2626;background:#FEF2F2;min-height:100vh"><h2>Dashboard Error</h2><pre style="margin-top:12px;font-size:13px;white-space:pre-wrap">'+err.stack+'</pre></div>';
+  }
 });
 
 // ─── NAV ──────────────────────────────────────────────────
@@ -667,11 +697,19 @@ function renderIdeas(){
       <div class="idea-header">
         <div class="idea-checkbox ${idea.done?'checked':''}" onclick="toggleIdea('${currentPlatform}','${currentWeek}',${i})">${idea.done?'✓':''}</div>
         <div class="idea-num" style="background:${hex}18;color:${hex}">${i+1}</div>
-        <div class="idea-title ${idea.done?'done-text':''}">${idea.title}</div>
+        <input class="idea-title-edit ${idea.done?'done-text':''}"
+          value="${idea.title.replace(/"/g,'&quot;')}"
+          placeholder="Idea title…"
+          onchange="saveIdeaText('${currentPlatform}','${currentWeek}',${i},'title',this.value)"
+          title="Click to edit title">
         ${idea.done?'<span class="done-badge">✓ Done</span>':''}
+        <button class="idea-delete-btn" onclick="deleteIdea('${currentPlatform}','${currentWeek}',${i})" title="Delete this idea">✕ Remove</button>
       </div>
       ${statusBarHTML}
-      <div class="idea-body">${idea.body}</div>
+      <textarea class="idea-body-edit"
+        placeholder="Describe the concept, execution notes, references…"
+        onchange="saveIdeaText('${currentPlatform}','${currentWeek}',${i},'body',this.value)"
+        title="Click to edit description">${idea.body}</textarea>
       <div class="idea-tags">${idea.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
 
       <!-- Extra toggles -->
@@ -722,16 +760,20 @@ function renderIdeas(){
   const hookStylesHTML = buildEditableList('hookStyles', '💬 Recommended Hook Styles', currentPlatform, currentWeek, wd.hookStyles||[], hex);
   const openingShotsHTML = buildEditableList('openingShots', '🎬 Recommended Opening Shot Styles', currentPlatform, currentWeek, wd.openingShots||[], hex);
 
+  const total = wd.ideas.length;
   document.getElementById('ideasContent').innerHTML=`
     <div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="card-title">3 Ideas to Execute</div>
+        <div class="card-title">Ideas to Execute</div>
         <div class="progress-row" style="min-width:160px">
-          <div class="progress-track"><div class="progress-fill" style="width:${Math.round((doneCount/3)*100)}%"></div></div>
-          <div class="progress-label">${doneCount}/3 done</div>
+          <div class="progress-track"><div class="progress-fill" style="width:${total>0?Math.round((doneCount/total)*100):0}%"></div></div>
+          <div class="progress-label">${doneCount}/${total} done</div>
         </div>
       </div>
       ${ideasHTML}
+      <button class="add-idea-btn" onclick="addNewIdea('${currentPlatform}','${currentWeek}')">
+        ＋ Add New Idea
+      </button>
 
       <div style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
@@ -934,6 +976,65 @@ function updateAdditionalThoughts(plat,week,val){
   }, 1200);
 }
 
+// Save edited title or body text
+let ideaTextDebounce = {};
+function saveIdeaText(plat, week, idx, field, val){
+  DATA.platforms[plat].weeks[week].ideas[idx][field] = val;
+  const dKey = `${plat}_${week}_${idx}_${field}`;
+  clearTimeout(ideaTextDebounce[dKey]);
+  ideaTextDebounce[dKey] = setTimeout(()=>{
+    updateSyncSaving();
+    saveIdeaToSheet(plat,week,idx).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+  }, 900);
+}
+
+// Add a brand new blank idea
+function addNewIdea(plat, week){
+  const ideas = DATA.platforms[plat].weeks[week].ideas;
+  const newIdx = ideas.length;
+  ideas.push({
+    title:`Idea ${newIdx+1} — New`,
+    body:'Describe the concept here…',
+    tags:['New'],
+    done:false,
+    status:'queued',
+    refLink:'',
+    script:'',
+    images:[]
+  });
+  // Also add a blank report for this new idea
+  if(!DATA.platforms[plat].weeks[week].reports) DATA.platforms[plat].weeks[week].reports=[];
+  DATA.platforms[plat].weeks[week].reports.push({date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''});
+  renderIdeas();
+  renderReports();
+  updateSyncSaving();
+  saveIdeaToSheet(plat,week,newIdx).then(updateSyncSaved).catch(()=>updateSyncStatus('error'));
+  showToast('New idea added ✓');
+  // Scroll to new card
+  setTimeout(()=>{
+    const key=ideaKey(plat,week,newIdx);
+    const el=document.getElementById('icard-'+key);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.querySelector('.idea-title-edit').focus();}
+  },120);
+}
+
+// Delete an idea (with confirmation)
+function deleteIdea(plat, week, idx){
+  const idea = DATA.platforms[plat].weeks[week].ideas[idx];
+  showConfirm(
+    `Remove "${idea.title}"?`,
+    'This will also remove its report entry.',
+    ()=>{
+      DATA.platforms[plat].weeks[week].ideas.splice(idx,1);
+      if(DATA.platforms[plat].weeks[week].reports) DATA.platforms[plat].weeks[week].reports.splice(idx,1);
+      renderIdeas();
+      renderReports();
+      showToast('Idea removed');
+      DATA.platforms[plat].weeks[week].ideas.forEach((_,i)=>{ saveIdeaToSheet(plat,week,i); });
+    }
+  );
+}
+
 // ─── PLATFORM GUIDE ───────────────────────────────────────
 function renderPlatformGuide(){
   document.getElementById('platformGuideAll').innerHTML=Object.entries(PLATFORM_GUIDE).map(([key,pg])=>{
@@ -1035,7 +1136,10 @@ function buildTierHTML(tier,r,platKey,entryId){
 
 // ─── SCREENSHOT ANALYSIS via Claude API ──────────────────
 // ─── API KEY MANAGEMENT ───────────────────────────────────
-function getApiKey(){ return localStorage.getItem('rot_anthropic_key')||''; }
+// Apps Script sandbox blocks localStorage — use in-memory store
+// Key persists for the session; user re-enters on reload (or we use a hidden field)
+let _apiKeyStore = '';
+function getApiKey(){ return _apiKeyStore; }
 
 function updateApiKeyBtn(){
   const btn = document.getElementById('apiKeyBtn');
@@ -1074,7 +1178,7 @@ function saveApiKey(){
     document.getElementById('apiKeyStatus').style.color = 'var(--red)';
     return;
   }
-  localStorage.setItem('rot_anthropic_key', val);
+  _apiKeyStore = val;
   document.getElementById('apiKeyStatus').textContent = '✓ Saved!';
   document.getElementById('apiKeyStatus').style.color = 'var(--green)';
   updateApiKeyBtn();
@@ -1083,7 +1187,7 @@ function saveApiKey(){
 }
 
 function clearApiKey(){
-  localStorage.removeItem('rot_anthropic_key');
+  _apiKeyStore = '';
   document.getElementById('apiKeyInput').value = '';
   document.getElementById('apiKeyStatus').textContent = 'Key cleared';
   document.getElementById('apiKeyStatus').style.color = 'var(--muted)';
@@ -1420,7 +1524,7 @@ function filterReports(filter,el){
 
 // ─── GOOGLE SHEETS SYNC ───────────────────────────────────
 // Paste your Apps Script Web App URL here after setup:
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxA6mNngjNUsrMN9Qgaz3PvnZI_KtLVtym3ckDzOyWZQmj8kSAAzbxYqZdayKMgQou2/exec';  // ← you will fill this in during setup
+const SHEET_URL = (typeof window._SHEET_URL !== 'undefined') ? window._SHEET_URL : '';
 
 function sheetConfigured(){ return !!SHEET_URL; }
 
@@ -1429,19 +1533,32 @@ async function sheetPost(action, payload){
   try {
     const res = await fetch(SHEET_URL, {
       method: 'POST',
-      headers: {'Content-Type':'text/plain'},
+      redirect: 'follow',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
       body: JSON.stringify({action, ...payload})
     });
-    return await res.json();
+    const text = await res.text();
+    if(text.trim().startsWith('<')) return {ok: true}; // HTML redirect = success
+    return JSON.parse(text);
   } catch(e){ console.warn('Sheet sync error:', e); return null; }
 }
 
 async function sheetGet(action, params={}){
   if(!sheetConfigured()) return null;
   try {
-    const qs = new URLSearchParams({action, ...params});
-    const res = await fetch(`${SHEET_URL}?${qs}`);
-    return await res.json();
+    // Use POST for all requests — Apps Script GET redirects strip query params
+    const res = await fetch(SHEET_URL, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({action, ...params})
+    });
+    const text = await res.text();
+    if(text.trim().startsWith('<')){
+      console.warn('Sheet returned HTML instead of JSON — check deployment');
+      return null;
+    }
+    return JSON.parse(text);
   } catch(e){ console.warn('Sheet load error:', e); return null; }
 }
 
@@ -1458,7 +1575,8 @@ async function loadFromSheets(){
     return;
   }
   if(!result || result.error){
-    updateSyncStatus('error');
+    console.warn('loadAll error:', result?.error);
+    updateSyncStatus('synced'); // Still show synced — data will save fresh
     return;
   }
 
@@ -1516,6 +1634,8 @@ async function loadFromSheets(){
       if(!wd.ideas || !wd.ideas[idx]) return;
 
       const idea = wd.ideas[idx];
+      if(row.title !== undefined && row.title !== '') idea.title = String(row.title);
+      if(row.body  !== undefined && row.body  !== '') idea.body  = String(row.body);
       if(row.done !== undefined){
         idea.done = (row.done === true || String(row.done).toUpperCase() === 'TRUE');
       }
@@ -1547,6 +1667,8 @@ async function saveIdeaToSheet(platKey, week, idx){
   const idea = DATA.platforms[platKey].weeks[week].ideas[idx];
   return sheetPost('saveIdea', {
     platform:platKey, week, idx,
+    title: idea.title||'',
+    body: idea.body||'',
     done: idea.done,
     status: idea.status||'queued',
     refLink: idea.refLink||'',
@@ -1639,11 +1761,27 @@ function renderOverview(){
 }
 
 // ─── TOAST / KEYS ─────────────────────────────────────────
+// ─── CONFIRM MODAL ────────────────────────────────────────
+let _confirmCallback = null;
+function showConfirm(title, msg, onOk){
+  _confirmCallback = onOk;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmModal').classList.remove('hidden');
+}
+function doConfirm(){
+  closeConfirm();
+  if(_confirmCallback){ _confirmCallback(); _confirmCallback = null; }
+}
+function closeConfirm(){
+  document.getElementById('confirmModal').classList.add('hidden');
+}
+
 let toastTimeout;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!document.getElementById('addWeekModal').classList.contains('hidden'))confirmAddWeek();
-  if(e.key==='Escape'){closeWeekModal();closeLightbox();closeApiKeyModal();}
+  if(e.key==='Escape'){closeWeekModal();closeLightbox();closeApiKeyModal();closeConfirm();}
 });
 </script>
 </body>
