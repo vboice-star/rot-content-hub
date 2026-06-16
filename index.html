@@ -270,19 +270,17 @@
 </style>
 </head>
 <body>
-<script>window._SHEET_URL = "<?= sheetUrl ?>";</script>
-
 
 <div class="lightbox hidden" id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" src="" alt=""></div>
 
 <!-- Confirm Modal -->
 <div class="modal-overlay hidden" id="confirmModal">
   <div class="modal" style="width:360px">
-    <h3 id="confirmTitle"></h3>
+    <h3 id="confirmTitle">Are you sure?</h3>
     <p id="confirmMsg" style="margin-bottom:0"></p>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeConfirm()">Cancel</button>
-      <button class="btn-primary" style="background:var(--red)" id="confirmOkBtn" onclick="doConfirm()">Remove</button>
+      <button class="btn-primary" style="background:var(--red)" onclick="doConfirm()">Remove</button>
     </div>
   </div>
 </div>
@@ -413,7 +411,7 @@ const PLATFORM_GUIDE = {
     summary:'The 2026 algorithm explicitly rewards channels posting both Shorts AND long-form. Shorts = discovery, long-form = loyalty and monetization. Every Short should end with a CTA into long-form.',
     updatedNote:'June 2026 — YouTube rewards channels that publish BOTH Shorts + long-form. Shorts = discovery, long-form = loyalty.',
     doList:['Pair every long-form with a Short teaser (algo reward)','End every Short with a CTA to long-form video','Double down on comment-reply series','Build episodic/series content that keeps people returning','Storytime + POV formats drive strong retention','Turn top comments into next video concepts','Add chapter markers to improve watch time'],
-    avoidList:['Shorts with no CTA or follow-up','Dead-end videos — always tease what\'s next','Inconsistent upload schedule','Ignoring comment section as a content pipeline'],
+    avoidList:['Shorts with no CTA or follow-up','Dead-end videos — always tease what\u0027s next','Inconsistent upload schedule','Ignoring comment section as a content pipeline'],
     insights:['Algorithm rewards hybrid Shorts + long-form creators','Shorts = discovery engine, long-form = trust & loyalty','Replay rate & CTR are top Shorts signals','More people watch YouTube on TV than phones in 2026'],
     filters:['Does this create a question?','Will people stay to see the outcome?','Can we involve the comment section?'],
     owner:'j.oshea@printfly.com'
@@ -435,7 +433,7 @@ const PLATFORM_GUIDE = {
     summary:'Short-form video under 60 seconds now drives 48% of Facebook interactions. AI-driven content loops mean: engage once, Facebook keeps showing your brand. Live video gets 3x watch time vs regular video.',
     updatedNote:'June 2026 — Facebook now uses AI-driven content loops. Short-form video under 60 seconds gets 48% of interactions. Strong hooks critical.',
     doList:['Short-form video under 60 seconds (48% of FB interactions)','Strong first 1–2 second hook — critical','Opinion & debate content drives comments','Brain teasers & "find the object" overhead formats','Polls and interactive elements for community','Live video — users watch 3x longer than regular video','Question-based captions to spark comment threads'],
-    avoidList:['VO-heavy content without visual hooks','Weak opening shots','Long-form content without payoff','Content that doesn\'t invite a response'],
+    avoidList:['VO-heavy content without visual hooks','Weak opening shots','Long-form content without payoff','Content that doesn\u0027t invite a response'],
     insights:['48% of users most likely to interact with short-form video','55% of marketers say FB is most effective video channel (after YT/IG)','AI loop: engage once and Facebook keeps showing your brand','Video content from brands increased 3pts YoY on FB'],
     filters:['Does this create a question?','Will people stay to see the outcome?','Can we spark a debate in the comments?'],
     owner:'Amy'
@@ -533,7 +531,7 @@ const DATA = {
           ideas:[
             {title:'Black vs White Tee Circle Swipe — A/B Test',body:'A: circle swipe on black tee. B: circle swipe on white tee. Same VO structure as previous A/B tests.',tags:['A/B Test','Series'],done:false,status:'queued',refLink:'',script:'',images:[]},
             {title:'Smallest Amount of Ink — Marshmallow Edition',body:"Add-on to Smallest Amount of Ink series: use mini marshmallows to dab the ink. Can post big marshmallow video first as lead-in.",tags:['Series','Experimental'],done:false,status:'queued',refLink:'',script:'',images:[]},
-            {title:'"If This Goes Viral" Comment Control',body:'"If this video goes viral, we\'ll screen print whatever the top comment says. And I mean… whatever." Drives massive engagement.',tags:['Comment Bait','Viral Potential'],done:false,status:'queued',refLink:'',script:'',images:[]}
+            {title:'"If This Goes Viral" Comment Control',body:'"If this video goes viral, we\u0027ll screen print whatever the top comment says. And I mean… whatever." Drives massive engagement.',tags:['Comment Bait','Viral Potential'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
           hooks:[], hookStyles:[], openingShots:[],
           additionalThoughts:'',
@@ -570,7 +568,7 @@ const DATA = {
             {title:'Peanut Butter Ink — 6.9M View Recreation',body:'Recreate the 6.9M view video using the "peanut butter" colored ink bucket. Optional: scoop real peanut butter alongside and have people guess.',tags:['Viral Recreation','Question Hook'],done:false,status:'queued',refLink:'',script:'',images:[]},
             {title:"Stanley Cup Winner — Pantone Ink Mix",body:"Pantone ink mix using the Stanley Cup hockey champion's colors. Pantone content performs well on FB.",tags:['Pantone','Sports'],done:false,status:'queued',refLink:'',script:'',images:[]}
           ],
-          hooks:['"What happens when you don\'t have enough ink to make a t-shirt?"','"Example 47923 of NEVER letting ink go unused" — 2.6M views'], hookStyles:[], openingShots:[],
+          hooks:['"What happens when you don\u0027t have enough ink to make a t-shirt?"','"Example 47923 of NEVER letting ink go unused" — 2.6M views'], hookStyles:[], openingShots:[],
           additionalThoughts:'',
           reports:[{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''},{date:'',link:'',views:'',saves:'',shares:'',comments:'',followers:'',watchPct:'',status:'pending',takeaway:''}]
         },
@@ -593,16 +591,21 @@ const DATA = {
 let currentPlatform='instagram', currentWeek='May 25', currentReportFilter='all';
 
 // ─── INIT ─────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', function() {
   try {
-  const now=new Date();
-  document.getElementById('dateBadge').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-  renderWeekButtons(); renderIdeas(); renderPlatformGuide(); renderReports(); renderOverview();
-  loadFromSheets();
-  updateApiKeyBtn();
-  } catch(err) {
-    console.error('ROT init error:', err);
-    document.body.innerHTML = '<div style="padding:40px;font-family:sans-serif;color:#DC2626;background:#FEF2F2;min-height:100vh"><h2>Dashboard Error</h2><pre style="margin-top:12px;font-size:13px;white-space:pre-wrap">'+err.stack+'</pre></div>';
+    var now = new Date();
+    document.getElementById('dateBadge').textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    renderWeekButtons();
+    renderIdeas();
+    renderPlatformGuide();
+    renderReports();
+    renderOverview();
+    loadFromSheets();
+    updateApiKeyBtn();
+  } catch(e) {
+    console.error('Init error:', e);
+    var main = document.querySelector('main');
+    if(main) main.innerHTML = '<div style="padding:30px;background:#FEF2F2;border-radius:12px;color:#DC2626;font-family:monospace;font-size:13px;margin:20px"><b>Error: ' + (e.message||e) + '</b><br><br>' + (e.stack||'').replace(/</g,'&lt;') + '</div>';
   }
 });
 
@@ -1021,18 +1024,16 @@ function addNewIdea(plat, week){
 // Delete an idea (with confirmation)
 function deleteIdea(plat, week, idx){
   const idea = DATA.platforms[plat].weeks[week].ideas[idx];
-  showConfirm(
-    `Remove "${idea.title}"?`,
-    'This will also remove its report entry.',
-    ()=>{
-      DATA.platforms[plat].weeks[week].ideas.splice(idx,1);
-      if(DATA.platforms[plat].weeks[week].reports) DATA.platforms[plat].weeks[week].reports.splice(idx,1);
-      renderIdeas();
-      renderReports();
-      showToast('Idea removed');
-      DATA.platforms[plat].weeks[week].ideas.forEach((_,i)=>{ saveIdeaToSheet(plat,week,i); });
-    }
-  );
+  showConfirm("Remove idea?","This will also remove its report entry.",function(){doDeleteIdea(plat,week,idx);}); return;
+  DATA.platforms[plat].weeks[week].ideas.splice(idx,1);
+  if(DATA.platforms[plat].weeks[week].reports) DATA.platforms[plat].weeks[week].reports.splice(idx,1);
+  renderIdeas();
+  renderReports();
+  showToast('Idea removed');
+  // Re-save remaining ideas to keep sheet in sync
+  DATA.platforms[plat].weeks[week].ideas.forEach((_,i)=>{
+    saveIdeaToSheet(plat,week,i);
+  });
 }
 
 // ─── PLATFORM GUIDE ───────────────────────────────────────
@@ -1088,8 +1089,8 @@ function getTier(platKey,views){
   else if(v<b.top){tier='top';label='Top Performing';icon='🚀';cls='tier-top';tbc='tb-top';color='var(--green)';pct=60+Math.round(((v-b.goal)/(b.top-b.goal))*25);}
   else{tier='viral';label='Viral+';icon='⚡';cls='tier-viral';tbc='tb-viral';color='var(--purple)';pct=Math.min(100,85+15);}
   const verdicts={
-    underperform:'Consider changing the hook, format, or opening shot. Review what\'s worked before and adjust.',
-    average:'Decent traction but hasn\'t broken out. Try A/B testing the hook or repost with different audio.',
+    underperform:'Consider changing the hook, format, or opening shot. Review what\u0027s worked before and adjust.',
+    average:'Decent traction but hasn\u0027t broken out. Try A/B testing the hook or repost with different audio.',
     goal:'Solid — hitting the goal range. Identify what made this work and build a series around it.',
     top:'Strong performer! This framework is repeatable — plan a follow-up ASAP.',
     viral:'Viral territory! Document every detail and push a follow-up immediately while momentum is high.'
@@ -1135,10 +1136,8 @@ function buildTierHTML(tier,r,platKey,entryId){
 }
 
 // ─── SCREENSHOT ANALYSIS via Claude API ──────────────────
-// ─── API KEY MANAGEMENT ───────────────────────────────────
-// Apps Script sandbox blocks localStorage — use in-memory store
-// Key persists for the session; user re-enters on reload (or we use a hidden field)
 let _apiKeyStore = '';
+// ─── API KEY MANAGEMENT ───────────────────────────────────
 function getApiKey(){ return _apiKeyStore; }
 
 function updateApiKeyBtn(){
@@ -1524,42 +1523,62 @@ function filterReports(filter,el){
 
 // ─── GOOGLE SHEETS SYNC ───────────────────────────────────
 // Paste your Apps Script Web App URL here after setup:
-const SHEET_URL = (typeof window._SHEET_URL !== 'undefined') ? window._SHEET_URL : '';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxA6mNngjNUsrMN9Qgaz3PvnZI_KtLVtym3ckDzOyWZQmj8kSAAzbxYqZdayKMgQou2/exec';  // ← you will fill this in during setup
 
 function sheetConfigured(){ return !!SHEET_URL; }
 
 async function sheetPost(action, payload){
   if(!sheetConfigured()) return null;
   try {
-    const res = await fetch(SHEET_URL, {
+    var body = JSON.stringify(Object.assign({action: action}, payload||{}));
+    // Use no-cors so browser doesn't block cross-origin POST
+    // We can't read the response but the data DOES reach Apps Script
+    await fetch(SHEET_URL, {
       method: 'POST',
-      redirect: 'follow',
+      mode: 'no-cors',
       headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({action, ...payload})
+      body: body
     });
-    const text = await res.text();
-    if(text.trim().startsWith('<')) return {ok: true}; // HTML redirect = success
-    return JSON.parse(text);
-  } catch(e){ console.warn('Sheet sync error:', e); return null; }
+    return {ok: true};
+  } catch(e) {
+    console.warn('sheetPost error:', e);
+    return null;
+  }
 }
 
-async function sheetGet(action, params={}){
-  if(!sheetConfigured()) return null;
-  try {
-    // Use POST for all requests — Apps Script GET redirects strip query params
-    const res = await fetch(SHEET_URL, {
-      method: 'POST',
-      redirect: 'follow',
-      headers: {'Content-Type': 'text/plain;charset=utf-8'},
-      body: JSON.stringify({action, ...params})
-    });
-    const text = await res.text();
-    if(text.trim().startsWith('<')){
-      console.warn('Sheet returned HTML instead of JSON — check deployment');
-      return null;
+function sheetGet(action, params){
+  if(!sheetConfigured()) return Promise.resolve(null);
+  // Use script tag injection to bypass CORS for GET requests
+  return new Promise(function(resolve) {
+    var cbName = '_rotCb_' + Date.now();
+    var url = SHEET_URL + '?action=' + encodeURIComponent(action) + '&callback=' + cbName;
+    if(params) {
+      Object.keys(params).forEach(function(k){
+        url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+      });
     }
-    return JSON.parse(text);
-  } catch(e){ console.warn('Sheet load error:', e); return null; }
+    var timeout = setTimeout(function(){
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      console.warn('sheetGet timeout for', action);
+      resolve(null);
+    }, 10000);
+    window[cbName] = function(data){
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+    var script = document.createElement('script');
+    script.src = url;
+    script.onerror = function(){
+      clearTimeout(timeout);
+      delete window[cbName];
+      console.warn('sheetGet script error');
+      resolve(null);
+    };
+    document.head.appendChild(script);
+  });
 }
 
 // Called on page load — pulls all saved data from Sheets
@@ -1575,8 +1594,7 @@ async function loadFromSheets(){
     return;
   }
   if(!result || result.error){
-    console.warn('loadAll error:', result?.error);
-    updateSyncStatus('synced'); // Still show synced — data will save fresh
+    updateSyncStatus('error');
     return;
   }
 
@@ -1761,27 +1779,16 @@ function renderOverview(){
 }
 
 // ─── TOAST / KEYS ─────────────────────────────────────────
-// ─── CONFIRM MODAL ────────────────────────────────────────
-let _confirmCallback = null;
-function showConfirm(title, msg, onOk){
-  _confirmCallback = onOk;
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMsg').textContent = msg;
-  document.getElementById('confirmModal').classList.remove('hidden');
-}
-function doConfirm(){
-  closeConfirm();
-  if(_confirmCallback){ _confirmCallback(); _confirmCallback = null; }
-}
-function closeConfirm(){
-  document.getElementById('confirmModal').classList.add('hidden');
-}
+var _confirmCb = null;
+function showConfirm(title,msg,cb){ _confirmCb=cb; document.getElementById("confirmTitle").textContent=title; document.getElementById("confirmMsg").textContent=msg; document.getElementById("confirmModal").classList.remove("hidden"); }
+function doConfirm(){ closeConfirm(); if(_confirmCb){ _confirmCb(); _confirmCb=null; } }
+function closeConfirm(){ document.getElementById("confirmModal").classList.add("hidden"); }
 
 let toastTimeout;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>t.classList.remove('show'),2800);}
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!document.getElementById('addWeekModal').classList.contains('hidden'))confirmAddWeek();
-  if(e.key==='Escape'){closeWeekModal();closeLightbox();closeApiKeyModal();closeConfirm();}
+  if(e.key==='Escape'){closeWeekModal();closeLightbox();closeApiKeyModal();}
 });
 </script>
 </body>
